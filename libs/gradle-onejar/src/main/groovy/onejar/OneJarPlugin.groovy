@@ -12,9 +12,9 @@ class OneJarPlugin implements Plugin<Project> {
 
     def onejarExt = project.ext.has("onejar") ? project.ext.onejar : []
 
-    if(onejarExt.MainClass)
+    if(onejarExt.mainClass)
       project.jar {
-        manifest { attributes "Main-Class": onejarExt.MainClass }
+        manifest { attributes "Main-Class": onejarExt.mainClass }
       }
     else
       project.logger.warn("Main class is not specified")
@@ -41,7 +41,12 @@ class OneJarPlugin implements Plugin<Project> {
         ant.onejar(destFile: destFile) {
           main(jar: project.tasks.jar.archivePath.toString())
           manifest {
-            attribute(name: "Built-By", value: System.getProperty("user.name"))
+            if(onejarExt.manifest)
+              onejarExt.manifest.each { key, value ->
+                attribute(name: key, value: value)
+              }
+            if(!onejarExt.manifest.containsKey("Built-By"))
+              attribute(name: "Built-By", value: System.getProperty("user.name"))
           }
           lib {
             fileset(dir: "${project.buildDir}/onejarDependencies")

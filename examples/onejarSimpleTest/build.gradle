@@ -1,7 +1,10 @@
 apply plugin: "java"
 
 ext.onejar = [
-  MainClass: "onejarsimpletest.Main"
+  mainClass: "onejarsimpletest.Main",
+  manifest: [
+    "Built-By": "Some user"
+  ]
 ]
 
 apply plugin: "onejar"
