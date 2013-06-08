@@ -1,0 +1,12 @@
+allprojects {
+  group = "org.akhikhl.gradle-onejar"
+  version = "0.0.1"
+}
+
+subprojects {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  apply plugin: "maven"
+}

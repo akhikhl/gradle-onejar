@@ -1,0 +1,9 @@
+apply plugin: "java"
+
+ext {
+  onejar = [
+    MainClass: "onejarsimpletest.Main"
+  ]
+}
+
+apply plugin: "onejar"

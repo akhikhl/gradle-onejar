@@ -1,0 +1,109 @@
+/**
+ * contribs.gradle
+ *
+ * Batch installation/deployment of all poms, jars and, optionally, sources 
+ * and javadoc from the current folder (and all it's subfolders)
+ * to the local maven repository.
+ *
+ * Written by Andrey Hihlovskiy (akhikhl AT gmail DOT com).
+ * Licensed under the MIT (http://opensource.org/licenses/MIT).
+ * Date: 05.06.2013
+ *
+ * @author Andrey Hihlovskiy
+ * @version 1.0.0
+ * @requires gradle 1.6 or later
+ *
+ * Get complete sources and documentation at:
+ *
+ * https://github.com/akhikhl/contribs
+ *
+ **/
+ 
+buildscript {
+    
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  
+  dependencies {
+    classpath "org.apache.maven:maven-ant-tasks:2.1.3"
+    classpath "commons-io:commons-io:2.4"
+  }
+}
+
+import groovy.util.AntBuilder
+import org.apache.commons.io.FilenameUtils
+
+def deployArtifacts(pomFiles, repository, user, password) {
+  AntBuilder ant = new AntBuilder()
+  File mavenAntTasksJar = buildscript.configurations.classpath.find { it.name.contains("maven-ant-tasks") }
+  ant.taskdef(resource: 'org/apache/maven/artifact/ant/antlib.xml', classpath: mavenAntTasksJar.absolutePath)
+  pomFiles.each { File pomFile ->
+    File jarFile = new File(FilenameUtils.removeExtension(pomFile.absolutePath) + ".jar")
+    if(jarFile.exists()) {
+      // Deploy pom file with jar and, optionally with sources and javadoc.
+	    ant.pom(id:"mypom", file: pomFile)
+	    ant.deploy(file: jarFile) {
+		    ant.remoteRepository(url: repository) {
+			    ant.authentication(username: user, password: password)
+		    }
+		    ant.pom(refid: 'mypom')
+		    File sourcesFile = new File(FilenameUtils.removeExtension(pomFile.absolutePath) + "-sources.jar")
+		    if(sourcesFile.exists())
+		      ant.attach(file: sourcesFile.absolutePath, type: "jar", classifier: "sources")
+		    File javadocFile = new File(FilenameUtils.removeExtension(pomFile.absolutePath) + "-javadoc.jar")
+		    if(javadocFile.exists())
+		      ant.attach(file: javadocFile.absolutePath, type: "jar", classifier: "javadoc")
+	    }
+    }
+    else {
+      // Deploy pom file alone. Typical use-case: installing parent pom or aggregator pom.
+	    ant.pom(id: "mypom", file: pomFile)
+	    ant.deploy(file: pomFile) {
+		    ant.remoteRepository(url: repository) {
+			    ant.authentication(username: user, password: password)
+		    }
+		    ant.pom(refid: 'mypom')
+	    }
+    }
+  }
+}
+
+task installContribs {
+  description = "Installs poms, jars and, optionally, sources and javadoc to the local maven repository."
+  def sourceTree = fileTree(dir: projectDir.absolutePath, includes: ["**/*.pom"])
+  File markerFile = new File(buildDir, "contribsInstalled")
+  inputs.dir sourceTree
+  outputs.file markerFile
+  doLast {
+    def repository = "file://" + new File(System.getProperty("user.home"), ".m2/repository").absolutePath
+    deployArtifacts(sourceTree, repository, "", "")
+    markerFile.parentFile.mkdirs()
+    markerFile.text = new java.util.Date()
+  }
+}
+
+if(!tasks.findByName("install"))
+  task install
+  
+install.dependsOn installContribs
+
+// it is possible to define other tasks here, for example, for deploying
+// to company-wide artifactory etc.
+
+task cleanContribs {
+  description = "'Forgets' about contribution installations/deployments."
+  outputs.upToDateWhen { !buildDir.exists() }
+  doLast {
+    if(buildDir.exists())
+      buildDir.deleteDir()
+  }
+}
+
+if(!tasks.findByName("clean"))
+  task clean
+
+clean.dependsOn cleanContribs
+
+defaultTasks "install"

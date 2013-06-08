@@ -1,0 +1,3 @@
+include "contribs"
+include "gradle-onejar"
+
