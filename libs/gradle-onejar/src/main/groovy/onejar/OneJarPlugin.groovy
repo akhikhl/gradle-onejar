@@ -60,7 +60,7 @@ class OneJarPlugin implements Plugin<Project> {
                 onejarExt.manifest.each { key, value ->
                   attribute(name: key, value: value)
                 }
-              if(!onejarExt.manifest.containsKey("Built-By"))
+              if(!onejarExt.manifest?.containsKey("Built-By"))
                 attribute(name: "Built-By", value: System.getProperty("user.name"))
             }
             lib {
