@@ -73,14 +73,26 @@ class OneJarPlugin implements Plugin<Project> {
               }
             }
           }
-          if(flavor.launcher == "windows") {
-            def launchScriptFile = new File("${outputDir}/${baseName}.bat")
-            launchScriptFile.text = "@java -jar ${baseName}.jar %*"
-          } else {
+
+          def launchers
+          if(flavor.launchers)
+            launchers = flavor.launchers
+          else if(flavor.launcher)
+            launchers = [flavor.launcher]
+          else
+            launchers = ["shell"]
+
+          if(launchers.contains("shell")) {
             def launchScriptFile = new File("${outputDir}/${baseName}.sh")
             launchScriptFile.text = "#!/bin/bash\njava -jar ${baseName}.jar \"\$@\""
             launchScriptFile.setExecutable(true)
           }
+
+          if(launchers.contains("windows")) {
+            def launchScriptFile = new File("${outputDir}/${baseName}.bat")
+            launchScriptFile.text = "@java -jar ${baseName}.jar %*"
+          }
+
           project.logger.info "Created one-jar: " + destFile
         } // doLast
 

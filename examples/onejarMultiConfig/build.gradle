@@ -20,7 +20,10 @@ ext.onejar = [
   manifest: [
     "Built-By": "Some user"
   ],
-  flavors: [ "v2_3", "v2_4" ]
+  flavors: [ 
+    "v2_3", 
+    [ name: "v2_4", launchers: [ "shell", "windows" ] ] 
+  ]
 ]
 
 apply plugin: "onejar"
