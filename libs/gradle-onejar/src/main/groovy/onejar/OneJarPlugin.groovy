@@ -48,7 +48,7 @@ class OneJarPlugin implements Plugin<Project> {
           launchers = product.launchers
         else if(product.launcher)
           launchers = [product.launcher]
-        else if(product.arch == "win")
+        else if(product.arch == "windows")
           launchers = ["windows"]
         else
           launchers = ["shell"]
@@ -110,7 +110,7 @@ class OneJarPlugin implements Plugin<Project> {
             }
 
             def versionFileName = "${outputDir}/VERSION"
-            if(launchers.contains("windows"))
+            if(platform == "windows" || launchers.contains("windows"))
               versionFileName += ".txt"
             def versionFile = new File(versionFileName)
             versionFile.text = """\
