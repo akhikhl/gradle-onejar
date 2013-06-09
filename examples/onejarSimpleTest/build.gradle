@@ -1,14 +1,14 @@
 apply plugin: "java"
+apply plugin: "onejar"
 
 dependencies {
   compile 'org.apache.commons:commons-lang3:3.0'
 }
 
-ext.onejar = [
-  mainClass: "onejarsimpletest.Main",
-  manifest: [
-    "Built-By": "Some user"
-  ]
-]
+jar {
+  manifest { attributes "Main-Class": "onejarsimpletest.Main" }
+}
 
-apply plugin: "onejar"
+onejar {
+  manifest { attributes "Built-By": "Some user" }
+}

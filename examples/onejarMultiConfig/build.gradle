@@ -1,4 +1,5 @@
 apply plugin: "java"
+apply plugin: "onejar"
 
 dependencies {
   compile 'org.apache.commons:commons-lang3:3.0'
@@ -15,15 +16,12 @@ dependencies {
   v2_4 'commons-io:commons-io:2.4'
 }
 
-ext.onejar = [
-  mainClass: "onejarmulticonfig.Main",
-  manifest: [
-    "Built-By": "Some user"
-  ],
-  flavors: [ 
-    "v2_3", 
-    [ name: "v2_4", launchers: [ "shell", "windows" ] ] 
-  ]
-]
+jar {
+  manifest { attributes "Main-Class": "onejarmulticonfig.Main" }
+}
 
-apply plugin: "onejar"
+onejar {
+  manifest { attributes "Built-By": "Some user" }
+  flavor "v2_3"
+  flavor name: "v2_4", launchers: [ "shell", "windows" ]
+}
