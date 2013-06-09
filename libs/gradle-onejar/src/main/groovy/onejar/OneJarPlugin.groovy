@@ -3,11 +3,12 @@ package onejar
 import org.gradle.api.*
 import org.gradle.api.plugins.*
 import org.gradle.api.tasks.*
+import org.gradle.api.tasks.bundling.*
 
 class OneJarPlugin implements Plugin<Project> {
 
-  static def isCollection(obj) {
-    return [Collection, Object[]].any { it.isAssignableFrom(obj.getClass()) }
+  private static def toCollection(obj) {
+    [Collection, Object[]].any { it.isAssignableFrom(obj.getClass()) } ? obj : [obj]
   }
 
   void apply(final Project project) {
@@ -22,32 +23,59 @@ class OneJarPlugin implements Plugin<Project> {
 
     project.afterEvaluate {
 
+      toCollection(project.onejar.afterEvaluate).each { obj ->
+        if(obj instanceof Closure)
+          obj()
+      }
+
       def findFileInFlavors = { file ->
-        project.onejar.flavors.find { flavor ->
-          project.configurations.findByName(flavor.name)?.find { it == file }
+        project.onejar.products.find { product ->
+          project.configurations.findByName(product.name)?.find { it == file }
         } }
 
-      project.onejar.flavors.each { flavor ->
+      project.onejar.products.each { product ->
+
+        def platform = product.platform ?: "any"
+        def arch = product.arch ?: "any"
+        def language = product.language ?: "english"
+
+        def suffix = ""
+        if(product.name != "default")
+          suffix = product.suffix ?: product.name
+
+        def launchers
+        if(product.launchers)
+          launchers = product.launchers
+        else if(product.launcher)
+          launchers = [product.launcher]
+        else if(product.arch == "win")
+          launchers = ["windows"]
+        else
+          launchers = ["shell"]
+
+        def outputBaseDir = "${project.buildDir}/output"
+        def outputDir = "${outputBaseDir}/${project.name}-${project.version}"
+        if(suffix)
+          outputDir += "-" + suffix
 
         def buildTaskName = "oneJarBuild"
-        if(flavor.name != "default")
-          buildTaskName += "_" + flavor.name
+        if(product.name != "default")
+          buildTaskName += "_" + product.name
 
         project.task(buildTaskName) { task ->
 
-          def outputDir = "${project.buildDir}/output"
-          if(flavor.name != "default")
-            outputDir += "-" + flavor.name
-
           inputs.dir "${project.buildDir}/libs"
+          inputs.files project.configurations.runtime.files
+
+          if(project.configurations.findByName(product.name))
+            inputs.files project.configurations.findByName(product.name).files
+
           outputs.dir outputDir
 
           doLast {
             ant.taskdef(name: 'onejar', classname: "com.simontuffs.onejar.ant.OneJarTask", classpath: project.configurations.onejar.asPath)
 
-            def baseName = "${project.name}-${project.version}"
-            if(flavor != "default")
-              baseName += "-" + flavor.name
+            def baseName = "${project.name}"
             def destFile = "${outputDir}/${baseName}.jar"
 
             ant.onejar(destFile: destFile) {
@@ -64,19 +92,11 @@ class OneJarPlugin implements Plugin<Project> {
                   if(!findFileInFlavors(file))
                     fileset(file: file)
                 }
-                project.configurations.findByName(flavor.name)?.each { file ->
+                project.configurations.findByName(product.name)?.each { file ->
                   fileset(file: file)
                 }
               }
             }
-
-            def launchers
-            if(flavor.launchers)
-              launchers = flavor.launchers
-            else if(flavor.launcher)
-              launchers = [flavor.launcher]
-            else
-              launchers = ["shell"]
 
             if(launchers.contains("shell")) {
               def launchScriptFile = new File("${outputDir}/${baseName}.sh")
@@ -89,14 +109,49 @@ class OneJarPlugin implements Plugin<Project> {
               launchScriptFile.text = "@java -jar ${baseName}.jar %*"
             }
 
+            def versionFileName = "${outputDir}/VERSION"
+            if(launchers.contains("windows"))
+              versionFileName += ".txt"
+            def versionFile = new File(versionFileName)
+            versionFile.text = """\
+product: ${project.name}
+version: ${project.version}
+platform: $platform
+architecture: $arch
+language: $language
+"""
             project.logger.info "Created one-jar: " + destFile
           } // doLast
 
-          dependsOn "assemble", "check"
-
+          task.dependsOn "assemble", "check"
           project.tasks.build.dependsOn task
-        } // task
-      } // project.onejar.flavors.each
+        } // build task
+
+        if(project.onejar.archiveProducts) {
+          def archiveTaskName = "oneJarArchiveProduct"
+          if(product.name != "default")
+            archiveTaskName += "_" + product.name
+
+          def archiveType = launchers.contains("windows") ? Zip : Tar
+
+          project.task(archiveTaskName, type: archiveType) { task ->
+            from new File(outputDir)
+            into "${project.name}"
+            destinationDir = new File(outputBaseDir)
+            classifier = suffix
+            if(archiveType == Tar) {
+              extension = ".tar.gz"
+              compression = Compression.GZIP
+            }
+            task.doLast {
+              ant.checksum file: it.archivePath
+            }
+            task.dependsOn buildTaskName
+            project.tasks.build.dependsOn task
+          }
+        }
+
+      } // project.onejar.products.each
     } // project.afterEvaluate
   } // apply
 }

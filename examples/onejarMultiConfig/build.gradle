@@ -22,6 +22,6 @@ jar {
 
 onejar {
   manifest { attributes "Built-By": "Some user" }
-  flavor "v2_3"
-  flavor name: "v2_4", launchers: [ "shell", "windows" ]
+  product "v2_3"
+  product name: "v2_4", launchers: [ "shell", "windows" ]
 }
