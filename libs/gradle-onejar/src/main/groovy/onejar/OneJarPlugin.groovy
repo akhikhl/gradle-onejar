@@ -23,12 +23,12 @@ class OneJarPlugin implements Plugin<Project> {
 
     project.afterEvaluate {
 
-      toCollection(project.onejar.afterEvaluate).each { obj ->
+      toCollection(project.onejar.beforeProductGeneration).each { obj ->
         if(obj instanceof Closure)
           obj()
       }
 
-      def findFileInFlavors = { file ->
+      def findFileInProducts = { file ->
         project.onejar.products.find { product ->
           project.configurations.findByName(product.name)?.find { it == file }
         } }
@@ -89,7 +89,7 @@ class OneJarPlugin implements Plugin<Project> {
               }
               lib {
                 project.configurations.runtime.each { file ->
-                  if(!findFileInFlavors(file))
+                  if(!findFileInProducts(file))
                     fileset(file: file)
                 }
                 project.configurations.findByName(product.name)?.each { file ->

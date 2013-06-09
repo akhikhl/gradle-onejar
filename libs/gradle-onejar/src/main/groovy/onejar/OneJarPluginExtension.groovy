@@ -10,13 +10,13 @@ class OneJarPluginExtension {
   }
 
   def manifest = new Manifest()
-  def defaultFlavors = true
+  def defaultProducts = true
   def products = [[ name: "default" ]]
   def archiveProducts = false
-  def afterEvaluate = []
+  def beforeProductGeneration = []
 
-  def afterEvaluate(newValue) {
-    afterEvaluate.add newValue
+  def beforeProductGeneration(newValue) {
+    beforeProductGeneration.add newValue
   }
 
   def product(String productName) {
@@ -24,9 +24,9 @@ class OneJarPluginExtension {
   }
 
   def product(Map productSpec) {
-    if(defaultFlavors) {
+    if(defaultProducts) {
       products = []
-      defaultFlavors = false
+      defaultProducts = false
     }
     products.add productSpec
   }
