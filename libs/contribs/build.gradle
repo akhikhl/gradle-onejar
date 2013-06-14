@@ -73,7 +73,7 @@ def deployArtifacts(pomFiles, repository, user, password) {
   }
 }
 
-task installContribs {
+task("install") {
   description = "Installs poms, jars and, optionally, sources and javadoc to the local maven repository."
   def sourceTree = fileTree(dir: projectDir.absolutePath, includes: ["**/*.pom"])
   File markerFile = new File(buildDir, "contribsInstalled")
@@ -87,15 +87,19 @@ task installContribs {
   }
 }
 
-if(!tasks.findByName("install"))
-  task install
-  
-install.dependsOn installContribs
+task("uploadArchives") {
+  description = "Uploads poms, jars and, optionally, sources and javadoc to the globally defined repository."
+  def sourceTree = fileTree(dir: projectDir.absolutePath, includes: ["**/*.pom"])
+  doLast {
+    def corporateDeployment = rootProject.ext.corporateDeployment
+    deployArtifacts(sourceTree, corporateDeployment.url, corporateDeployment.user, corporateDeployment.password)
+  }
+}
 
 // it is possible to define other tasks here, for example, for deploying
 // to company-wide artifactory etc.
 
-task cleanContribs {
+task("clean") {
   description = "'Forgets' about contribution installations/deployments."
   outputs.upToDateWhen { !buildDir.exists() }
   doLast {
@@ -103,10 +107,5 @@ task cleanContribs {
       buildDir.deleteDir()
   }
 }
-
-if(!tasks.findByName("clean"))
-  task clean
-
-clean.dependsOn cleanContribs
 
 defaultTasks "install"
