@@ -1,4 +1,10 @@
 apply plugin: "groovy"
+apply plugin: "maven"
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
 
 dependencies {
   compile "org.codehaus.groovy:groovy-all:1.8.6"

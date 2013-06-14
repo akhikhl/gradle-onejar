@@ -10,7 +10,7 @@
  * Date: 05.06.2013
  *
  * @author Andrey Hihlovskiy
- * @version 1.0.0
+ * @version 1.0.1
  * @requires gradle 1.6 or later
  *
  * Get complete sources and documentation at:
@@ -41,6 +41,19 @@ def deployArtifacts(pomFiles, repository, user, password) {
   ant.taskdef(resource: 'org/apache/maven/artifact/ant/antlib.xml', classpath: mavenAntTasksJar.absolutePath)
   pomFiles.each { File pomFile ->
     File jarFile = new File(FilenameUtils.removeExtension(pomFile.absolutePath) + ".jar")
+    if(!jarFile.exists()) {
+      // Deploy pom file alone. Typical use-case: installing parent pom or aggregator pom.
+	    ant.pom(id: "mypom", file: pomFile)
+	    ant.deploy(file: pomFile) {
+		    ant.remoteRepository(url: repository) {
+			    ant.authentication(username: user, password: password)
+		    }
+		    ant.pom(refid: 'mypom')
+	    }
+    }
+  }
+  pomFiles.each { File pomFile ->
+    File jarFile = new File(FilenameUtils.removeExtension(pomFile.absolutePath) + ".jar")
     if(jarFile.exists()) {
       // Deploy pom file with jar and, optionally with sources and javadoc.
 	    ant.pom(id:"mypom", file: pomFile)
@@ -55,16 +68,6 @@ def deployArtifacts(pomFiles, repository, user, password) {
 		    File javadocFile = new File(FilenameUtils.removeExtension(pomFile.absolutePath) + "-javadoc.jar")
 		    if(javadocFile.exists())
 		      ant.attach(file: javadocFile.absolutePath, type: "jar", classifier: "javadoc")
-	    }
-    }
-    else {
-      // Deploy pom file alone. Typical use-case: installing parent pom or aggregator pom.
-	    ant.pom(id: "mypom", file: pomFile)
-	    ant.deploy(file: pomFile) {
-		    ant.remoteRepository(url: repository) {
-			    ant.authentication(username: user, password: password)
-		    }
-		    ant.pom(refid: 'mypom')
 	    }
     }
   }
