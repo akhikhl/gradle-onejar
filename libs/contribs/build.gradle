@@ -96,16 +96,14 @@ task("uploadArchives") {
   }
 }
 
-// it is possible to define other tasks here, for example, for deploying
-// to company-wide artifactory etc.
-
-task("clean") {
-  description = "'Forgets' about contribution installations/deployments."
-  outputs.upToDateWhen { !buildDir.exists() }
-  doLast {
-    if(buildDir.exists())
-      buildDir.deleteDir()
+if(!tasks.findByName("clean"))
+  task("clean") {
+    description = "'Forgets' about contribution installations/deployments."
+    outputs.upToDateWhen { !buildDir.exists() }
+    doLast {
+      if(buildDir.exists())
+        buildDir.deleteDir()
+    }
   }
-}
 
 defaultTasks "install"
