@@ -5,6 +5,12 @@ import org.gradle.api.plugins.*
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.*
 
+
+/**
+ * Gradle plugin for onejar generation
+ * @author akhikhl
+ *
+ */
 class OneJarPlugin implements Plugin<Project> {
 
   private static def toCollection(obj) {
@@ -37,7 +43,7 @@ class OneJarPlugin implements Plugin<Project> {
 
         def platform = product.platform ?: "any"
         def arch = product.arch ?: "any"
-        def language = product.language ?: "english"
+        def language = product.language ?: "en"
 
         def suffix = ""
         if(product.name != "default")
@@ -48,7 +54,7 @@ class OneJarPlugin implements Plugin<Project> {
           launchers = product.launchers
         else if(product.launcher)
           launchers = [product.launcher]
-        else if(product.arch == "windows")
+        else if(product.platform == "windows")
           launchers = ["windows"]
         else
           launchers = ["shell"]
