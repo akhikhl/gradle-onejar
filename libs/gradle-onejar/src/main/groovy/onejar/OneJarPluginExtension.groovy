@@ -54,10 +54,30 @@ class OneJarPluginExtension {
   def defaultProducts = true
   def products = [[ name: "default" ]]
   def archiveProducts = false
+  def additionalProductArtifacts = []
   def beforeProductGeneration = []
+  def launchParameters = []
+  def onProductGeneration = []
+
+  def additionalProductArtifacts(newValue) {
+    additionalProductArtifacts.add newValue
+  }
 
   def beforeProductGeneration(newValue) {
     beforeProductGeneration.add newValue
+  }
+
+  def launchParameter(newValue) {
+    launchParameters.add newValue
+  }
+
+  def manifest(Closure closure) {
+    closure.delegate = manifest
+    closure()
+  }
+
+  def onProductGeneration(newValue) {
+    onProductGeneration.add newValue
   }
 
   def product(String productName) {
@@ -70,10 +90,5 @@ class OneJarPluginExtension {
       defaultProducts = false
     }
     products.add productSpec
-  }
-
-  def manifest(Closure closure) {
-    closure.delegate = manifest
-    closure()
   }
 }
