@@ -56,6 +56,7 @@ class OneJarPluginExtension {
   def archiveProducts = false
   def additionalProductArtifacts = []
   def beforeProductGeneration = []
+  def excludeProductArtifact = []
   def launchParameters = []
   def onProductGeneration = []
 
@@ -65,6 +66,10 @@ class OneJarPluginExtension {
 
   def beforeProductGeneration(newValue) {
     beforeProductGeneration.add newValue
+  }
+
+  def excludeProductArtifact(newValue) {
+    excludeProductArtifact.add newValue
   }
 
   def launchParameter(newValue) {

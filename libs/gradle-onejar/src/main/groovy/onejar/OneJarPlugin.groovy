@@ -40,6 +40,10 @@ class OneJarPlugin implements Plugin<Project> {
         project.onejar.products.find { product ->
           project.configurations.findByName(product.name)?.find { it == file }
         } }
+ 
+      def excludeProductArtifact = { file ->
+        project.onejar.excludeProductArtifact.find { it(file) }
+      }
 
       project.onejar.products.each { product ->
 
@@ -97,17 +101,18 @@ class OneJarPlugin implements Plugin<Project> {
               }
               lib {
                 project.configurations.runtime.each { file ->
-                  if(!findFileInProducts(file))
+                  if(!findFileInProducts(file) && !excludeProductArtifact(file))
                     fileset(file: file)
                 }
                 project.configurations.findByName(product.name)?.each { file ->
-                  fileset(file: file)
+                  if(!excludeProductArtifact(file))
+                    fileset(file: file)
                 }
                 project.onejar.additionalProductArtifacts.each { obj ->
                   if(obj instanceof Closure)
                     obj = obj(product)
                   obj.each { file ->
-                    if(!findFileInProducts(file) && !project.configurations.runtime.find { it == file })
+                    if(!findFileInProducts(file) && !project.configurations.runtime.find { it == file } && !excludeProductArtifact(file))
                       fileset(file: file)
                   }
                 }
