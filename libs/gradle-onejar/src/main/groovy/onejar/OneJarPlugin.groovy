@@ -27,7 +27,7 @@ class OneJarPlugin implements Plugin<Project> {
 
     project.dependencies { onejar 'com.simontuffs:one-jar-ant-task:0.97' }
 
-    project.task('prepareOneJar') { dependsOn 'assemble', 'check' }
+    project.task('prepareOneJar') { dependsOn project.tasks.assemble, project.tasks.check }
 
     project.afterEvaluate {
 
