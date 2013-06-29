@@ -13,10 +13,6 @@ import org.gradle.api.tasks.bundling.*
  */
 class OneJarPlugin implements Plugin<Project> {
 
-  private static def toCollection(obj) {
-    [Collection, Object[]].any { it.isAssignableFrom(obj.getClass()) } ? obj : [obj]
-  }
-
   void apply(final Project project) {
 
     // the project supposed to be "java" or "groovy" already
@@ -31,7 +27,7 @@ class OneJarPlugin implements Plugin<Project> {
 
     project.afterEvaluate {
 
-      toCollection(project.onejar.beforeProductGeneration).each { obj ->
+      project.onejar.beforeProductGeneration.each { obj ->
         if(obj instanceof Closure)
           obj()
       }
@@ -40,7 +36,7 @@ class OneJarPlugin implements Plugin<Project> {
         project.onejar.products.find { product ->
           project.configurations.findByName(product.name)?.find { it == file }
         } }
- 
+
       def excludeProductArtifact = { file ->
         project.onejar.excludeProductArtifact.find { it(file) }
       }

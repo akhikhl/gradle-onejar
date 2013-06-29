@@ -1,11 +1,11 @@
 allprojects {
-  group = "org.akhikhl.gradle-onejar"
-  version = "0.0.1"
+  group = 'org.akhikhl.gradle-onejar'
+  version = '0.0.1'
 }
 
 subprojects {
 
-  apply plugin: "maven"
+  apply plugin: 'maven'
   
   repositories {
     mavenLocal()
@@ -13,7 +13,7 @@ subprojects {
   }
 
   afterEvaluate { 
-    if(tasks.findByName("classes")) {
+    if(tasks.findByName('classes')) {
       task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
@@ -23,12 +23,12 @@ subprojects {
       }
     }
 
-    if(tasks.findByName("javadoc")) {
+    if(tasks.findByName('javadoc')) {
       task javadocJar(type: Jar) {
         dependsOn javadoc
         classifier = 'javadoc'
         from javadoc.destinationDir
-        if(tasks.findByName("groovydoc")) {
+        if(tasks.findByName('groovydoc')) {
           dependsOn groovydoc
           from groovydoc.destinationDir          
         }
@@ -39,3 +39,5 @@ subprojects {
     }
   }
 }
+
+defaultTasks 'install'
