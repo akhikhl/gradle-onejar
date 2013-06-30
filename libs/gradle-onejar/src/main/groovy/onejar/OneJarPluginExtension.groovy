@@ -50,30 +50,35 @@ class OneJarPluginExtension {
     }
   }
 
+  def mainJar = null
   def manifest = new Manifest()
-  def defaultProducts = true
+  private boolean defaultProducts = true
   def products = [[ name: "default" ]]
-  def archiveProducts = false
-  def additionalProductArtifacts = []
+  boolean archiveProducts = false
+  def additionalProductFiles = []
   def beforeProductGeneration = []
-  def excludeProductArtifact = []
+  def excludeProductFile = []
   def launchParameters = []
   def onProductGeneration = []
 
-  def additionalProductArtifacts(newValue) {
-    additionalProductArtifacts.add newValue
+  def additionalProductFiles(newValue) {
+    additionalProductFiles.add newValue
   }
 
   def beforeProductGeneration(newValue) {
     beforeProductGeneration.add newValue
   }
 
-  def excludeProductArtifact(newValue) {
-    excludeProductArtifact.add newValue
+  def excludeProductFile(Closure newValue) {
+    excludeProductFile.add newValue
   }
 
-  def launchParameter(newValue) {
+  def launchParameter(String newValue) {
     launchParameters.add newValue
+  }
+
+  def mainJar(newValue) {
+    mainJar = newValue
   }
 
   def manifest(Closure closure) {

@@ -27,6 +27,17 @@ class OneJarPlugin implements Plugin<Project> {
 
     project.afterEvaluate {
 
+      String outputBaseDir = "${project.buildDir}/output"
+
+      def mainJar = project.onejar.mainJar
+      if(mainJar == null)
+        mainJar = project.tasks.jar.archivePath
+      else if(mainJar instanceof Closure)
+        mainJar = mainJar()
+
+      if(mainJar instanceof String)
+        mainJar = new File(mainJar)
+
       project.onejar.beforeProductGeneration.each { obj ->
         if(obj instanceof Closure)
           obj()
@@ -37,8 +48,10 @@ class OneJarPlugin implements Plugin<Project> {
           project.configurations.findByName(product.name)?.find { it == file }
         } }
 
-      def excludeProductArtifact = { file ->
-        project.onejar.excludeProductArtifact.find { it(file) }
+      def excludeProductFile = { file ->
+        project.onejar.excludeProductFile.find {
+          it instanceof Closure ? it(file) : it == file
+        }
       }
 
       project.onejar.products.each { product ->
@@ -61,7 +74,6 @@ class OneJarPlugin implements Plugin<Project> {
         else
           launchers = ['shell']
 
-        def outputBaseDir = "${project.buildDir}/output"
         def outputDir = "${outputBaseDir}/${project.name}-${project.version}"
         if(suffix)
           outputDir += '-' + suffix
@@ -87,7 +99,7 @@ class OneJarPlugin implements Plugin<Project> {
             def destFile = "${outputDir}/${baseName}.jar"
 
             ant.onejar(destFile: destFile) {
-              main jar: project.tasks.jar.archivePath.toString()
+              main jar: mainJar
               manifest {
                 project.onejar.manifest.attributes.each { key, value ->
                   attribute name: key, value: value
@@ -97,18 +109,18 @@ class OneJarPlugin implements Plugin<Project> {
               }
               lib {
                 project.configurations.runtime.each { file ->
-                  if(!findFileInProducts(file) && !excludeProductArtifact(file))
+                  if(file.absolutePath != mainJar.absolutePath && !findFileInProducts(file) && !excludeProductFile(file))
                     fileset(file: file)
                 }
                 project.configurations.findByName(product.name)?.each { file ->
-                  if(!excludeProductArtifact(file))
+                  if(file.absolutePath != mainJar.absolutePath && !excludeProductFile(file))
                     fileset(file: file)
                 }
-                project.onejar.additionalProductArtifacts.each { obj ->
+                project.onejar.additionalProductFiles.each { obj ->
                   if(obj instanceof Closure)
                     obj = obj(product)
                   obj.each { file ->
-                    if(!findFileInProducts(file) && !project.configurations.runtime.find { it == file } && !excludeProductArtifact(file))
+                    if(file.absolutePath != mainJar.absolutePath && !findFileInProducts(file) && !project.configurations.runtime.find { it == file } && !excludeProductFile(file))
                       fileset(file: file)
                   }
                 }
