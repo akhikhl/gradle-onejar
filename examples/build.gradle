@@ -5,10 +5,10 @@ buildscript {
     mavenCentral()
   }
 
-  apply plugin: "maven"
+  apply plugin: 'maven'
   
   dependencies {
-    classpath "org.akhikhl.gradle-onejar:gradle-onejar:0.0.2"
+    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.2'
   }
 }
 
@@ -19,7 +19,7 @@ subprojects {
     mavenCentral()
   }
 
-  apply plugin: "maven"
+  apply plugin: 'maven'
   
   version = '0.0.1'
 }
