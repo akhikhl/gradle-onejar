@@ -8,7 +8,7 @@ buildscript {
   apply plugin: "maven"
   
   dependencies {
-    classpath "org.akhikhl.gradle-onejar:gradle-onejar:0.0.1"
+    classpath "org.akhikhl.gradle-onejar:gradle-onejar:0.0.2"
   }
 }
 

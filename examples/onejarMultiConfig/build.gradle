@@ -1,5 +1,5 @@
-apply plugin: "java"
-apply plugin: "onejar"
+apply plugin: 'java'
+apply plugin: 'onejar'
 
 dependencies {
   compile 'org.apache.commons:commons-lang3:3.0'
@@ -7,21 +7,21 @@ dependencies {
 }
 
 configurations { 
-  v2_3
-  v2_4 
+  product_v2_3
+  product_v2_4 
 }
 
 dependencies { 
-  v2_3 'commons-io:commons-io:2.3'
-  v2_4 'commons-io:commons-io:2.4'
+  product_v2_3 'commons-io:commons-io:2.3'
+  product_v2_4 'commons-io:commons-io:2.4'
 }
 
 jar {
-  manifest { attributes "Main-Class": "onejarmulticonfig.Main" }
+  manifest { attributes 'Main-Class': 'onejarmulticonfig.Main' }
 }
 
 onejar {
-  manifest { attributes "Built-By": "Some user" }
-  product "v2_3"
-  product name: "v2_4", launchers: [ "shell", "windows" ]
+  manifest { attributes 'Built-By': 'Some user' }
+  product 'v2_3'
+  product name: 'v2_4', launchers: [ 'shell', 'windows' ]
 }
