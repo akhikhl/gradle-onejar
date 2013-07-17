@@ -154,13 +154,13 @@ class OneJarPlugin implements Plugin<Project> {
 
             if(launchers.contains('shell')) {
               def launchScriptFile = new File("${outputDir}/${baseName}.sh")
-              launchScriptFile.text = "#!/bin/bash\njava -jar ${baseName}.jar $launchParameters \"\$@\""
+              launchScriptFile.text = "#!/bin/bash\njava -Xms512m -Xmx1024m -jar ${baseName}.jar $launchParameters \"\$@\""
               launchScriptFile.setExecutable(true)
             }
 
             if(launchers.contains('windows')) {
               def launchScriptFile = new File("${outputDir}/${baseName}.bat")
-              launchScriptFile.text = "@java -jar ${baseName}.jar $launchParameters %*"
+              launchScriptFile.text = "@java -Xms512m -Xmx1024m -jar ${baseName}.jar $launchParameters %*"
             }
 
             def versionFileName = "${outputDir}/VERSION"
