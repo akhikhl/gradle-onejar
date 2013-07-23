@@ -1,4 +1,4 @@
-package onejar
+package org.akhikhl.gradle.onejar
 
 /**
  * Extension for gradle-onejar plugin.

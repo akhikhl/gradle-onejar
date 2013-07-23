@@ -1,4 +1,4 @@
-package onejar
+package org.akhikhl.gradle.onejar
 
 import org.gradle.api.*
 import org.gradle.api.plugins.*
