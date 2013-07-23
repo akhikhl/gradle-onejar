@@ -154,13 +154,21 @@ class OneJarPlugin implements Plugin<Project> {
 
             if(launchers.contains('shell')) {
               def launchScriptFile = new File("${outputDir}/${baseName}.sh")
-              launchScriptFile.text = "#!/bin/bash\njava -Xms512m -Xmx1024m -jar ${baseName}.jar $launchParameters \"\$@\""
+              launchScriptFile.text = '''#!/bin/bash
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+java -Xms512m -Xmx1024m -jar ${DIR}/''' + baseName + '.jar ' + launchParameters + ' "$@"'
               launchScriptFile.setExecutable(true)
             }
 
             if(launchers.contains('windows')) {
               def launchScriptFile = new File("${outputDir}/${baseName}.bat")
-              launchScriptFile.text = "@java -Xms512m -Xmx1024m -jar ${baseName}.jar $launchParameters %*"
+              launchScriptFile.text = "@java -Xms512m -Xmx1024m -jar %~dp0\\${baseName}.jar $launchParameters %*"
             }
 
             def versionFileName = "${outputDir}/VERSION"
