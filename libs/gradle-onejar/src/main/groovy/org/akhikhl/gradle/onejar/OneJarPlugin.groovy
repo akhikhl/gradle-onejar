@@ -88,7 +88,7 @@ class OneJarPlugin implements Plugin<Project> {
           launchers = ['windows']
         else
           launchers = ['shell']
-          
+
         def explodedResources = []
         if(product.explodedResource)
           explodedResources.add product.explodedResource
@@ -98,7 +98,7 @@ class OneJarPlugin implements Plugin<Project> {
         def outputDir = "${outputBaseDir}/${project.name}-${project.version}"
         if(suffix)
           outputDir += '-' + suffix
-          
+
         def copyExplodedResourcesTaskName = 'copyExplodedResources'
         if(product.name != 'default')
           copyExplodedResourcesTaskName += '_' + product.name
@@ -113,14 +113,14 @@ class OneJarPlugin implements Plugin<Project> {
               }
               else if(f.exists() && f.isFile()) {
                 inputs.file f
-                outputs.file "$outputDir/$explodedResource"              
+                outputs.file "$outputDir/$explodedResource"
               }
             }
-            
+
             doLast {
               for(def explodedResource in explodedResources) {
                 logger.warn 'Copying exploded resource from {} into {}', explodedResource, "$outputDir/$explodedResource"
-                project.copy { 
+                project.copy {
                   from explodedResource
                   into "$outputDir/$explodedResource"
                 }
@@ -140,13 +140,28 @@ class OneJarPlugin implements Plugin<Project> {
           if(productConfig)
             inputs.files productConfig.files
 
-          outputs.dir outputDir
+          def baseName = "${project.name}"
+          def destFile = "${outputDir}/${baseName}.jar"
+
+          outputs.file destFile
+
+          if(launchers.contains('shell')) {
+            def launchScriptFile = new File("${outputDir}/${baseName}.sh")
+            outputs.file launchScriptFile
+          }
+
+          if(launchers.contains('windows')) {
+            def launchScriptFile = new File("${outputDir}/${baseName}.bat")
+            outputs.file launchScriptFile
+          }
+
+          def versionFileName = "${outputDir}/VERSION"
+          if(platform == 'windows' || launchers.contains('windows'))
+            versionFileName += '.txt'
+          outputs.file versionFileName
 
           doLast {
             ant.taskdef(name: 'onejar', classname: 'com.simontuffs.onejar.ant.OneJarTask', classpath: project.configurations.onejar.asPath)
-
-            def baseName = "${project.name}"
-            def destFile = "${outputDir}/${baseName}.jar"
 
             def addedFiles = new HashSet()
 
@@ -206,16 +221,13 @@ java -Dfile.encoding=UTF8 -Xms512m -Xmx1024m -jar ${DIR}/''' + baseName + '.jar 
               launchScriptFile.text = "@java -Dfile.encoding=UTF8 -Xms512m -Xmx1024m -jar %~dp0\\${baseName}.jar $launchParameters %*"
             }
 
-            def versionFileName = "${outputDir}/VERSION"
-            if(platform == 'windows' || launchers.contains('windows'))
-              versionFileName += '.txt'
             new File(versionFileName).text = """\
 product: ${project.name}
 version: ${project.version}
 platform: $platform
 architecture: $arch
 language: $language
-"""            
+"""
             project.onejar.onProductGeneration.each { obj ->
               if(obj instanceof Closure)
                 obj(product, outputDir)
@@ -225,10 +237,10 @@ language: $language
           } // doLast
 
           task.dependsOn project.tasks.prepareOneJar
-          
+
           if(explodedResources)
             task.dependsOn copyExplodedResourcesTaskName
-          
+
           project.tasks.build.dependsOn task
         } // build task
 
