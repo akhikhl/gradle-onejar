@@ -88,10 +88,45 @@ class OneJarPlugin implements Plugin<Project> {
           launchers = ['windows']
         else
           launchers = ['shell']
+          
+        def explodedResources = []
+        if(product.explodedResource)
+          explodedResources.add product.explodedResource
+        if(product.explodedResources)
+          explodedResources.addAll product.explodedResources
 
         def outputDir = "${outputBaseDir}/${project.name}-${project.version}"
         if(suffix)
           outputDir += '-' + suffix
+          
+        def copyExplodedResourcesTaskName = 'copyExplodedResources'
+        if(product.name != 'default')
+          copyExplodedResourcesTaskName += '_' + product.name
+        if(explodedResources)
+          project.task(copyExplodedResourcesTaskName) { task ->
+
+            for(def explodedResource in explodedResources) {
+              def f = project.file(explodedResource)
+              if(f.exists() && f.isDirectory()) {
+                inputs.dir f
+                outputs.dir "$outputDir/$explodedResource"
+              }
+              else if(f.exists() && f.isFile()) {
+                inputs.file f
+                outputs.file "$outputDir/$explodedResource"              
+              }
+            }
+            
+            doLast {
+              for(def explodedResource in explodedResources) {
+                logger.warn 'Copying exploded resource from {} into {}', explodedResource, "$outputDir/$explodedResource"
+                project.copy { 
+                  from explodedResource
+                  into "$outputDir/$explodedResource"
+                }
+              }
+            }
+          }
 
         def buildTaskName = 'oneJarBuild'
         if(product.name != 'default')
@@ -180,7 +215,7 @@ version: ${project.version}
 platform: $platform
 architecture: $arch
 language: $language
-"""
+"""            
             project.onejar.onProductGeneration.each { obj ->
               if(obj instanceof Closure)
                 obj(product, outputDir)
@@ -190,6 +225,10 @@ language: $language
           } // doLast
 
           task.dependsOn project.tasks.prepareOneJar
+          
+          if(explodedResources)
+            task.dependsOn copyExplodedResourcesTaskName
+          
           project.tasks.build.dependsOn task
         } // build task
 
