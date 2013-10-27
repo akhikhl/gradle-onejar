@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.simontuffs</groupId>
+  <artifactId>one-jar-ant-task</artifactId>
+  <version>0.97</version>
+  <versioning>
+    <versions>
+      <version>0.97</version>
+    </versions>
+    <lastUpdated>20131024164713</lastUpdated>
+  </versioning>
+</metadata>
