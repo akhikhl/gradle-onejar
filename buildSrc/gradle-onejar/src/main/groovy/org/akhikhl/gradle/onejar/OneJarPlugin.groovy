@@ -27,20 +27,27 @@ class OneJarPlugin implements Plugin<Project> {
 
     project.afterEvaluate {
 
+      if(!project.tasks.jar.manifest.attributes.'Main-Class' && project.ext.has('mainClass')) {
+        // translate netbeans-compatible declaration of main-class to jar-manifest-attribute
+        project.jar {
+          manifest { attributes 'Main-Class': project.ext.mainClass }
+        }
+      }
+
       String outputBaseDir = "${project.buildDir}/output"
 
       def mainJar = project.onejar.mainJar
       if(mainJar == null)
-        mainJar = project.tasks.jar.archivePath
+      mainJar = project.tasks.jar.archivePath
       else if(mainJar instanceof Closure)
-        mainJar = mainJar()
+      mainJar = mainJar()
 
       if(mainJar instanceof String)
-        mainJar = new File(mainJar)
+      mainJar = new File(mainJar)
 
       project.onejar.beforeProductGeneration.each { obj ->
         if(obj instanceof Closure)
-          obj()
+        obj()
       }
 
       def findFileInProducts = { file ->
@@ -51,9 +58,9 @@ class OneJarPlugin implements Plugin<Project> {
 
       def excludeFile = { file ->
         if(file.absolutePath == mainJar.absolutePath)
-          return true
+        return true
         if(findFileInProducts(file))
-          return true
+        return true
         project.onejar.excludeProductFile.find {
           it instanceof Closure ? it(file) : it == file
         }
@@ -61,7 +68,7 @@ class OneJarPlugin implements Plugin<Project> {
 
       def excludeProductFile = { file ->
         if(file.absolutePath == mainJar.absolutePath)
-          return true
+        return true
         project.onejar.excludeProductFile.find {
           it instanceof Closure ? it(file) : it == file
         }
@@ -77,60 +84,60 @@ class OneJarPlugin implements Plugin<Project> {
 
         def suffix = ''
         if(product.name != 'default')
-          suffix = product.suffix ?: product.name
+        suffix = product.suffix ?: product.name
 
         def launchers
         if(product.launchers)
-          launchers = product.launchers
+        launchers = product.launchers
         else if(product.launcher)
-          launchers = [product.launcher]
+        launchers = [product.launcher]
         else if(product.platform == 'windows')
-          launchers = ['windows']
+        launchers = ['windows']
         else
-          launchers = ['shell']
+        launchers = ['shell']
 
         def explodedResources = []
         if(product.explodedResource)
-          explodedResources.add product.explodedResource
+        explodedResources.add product.explodedResource
         if(product.explodedResources)
-          explodedResources.addAll product.explodedResources
+        explodedResources.addAll product.explodedResources
 
         def outputDir = "${outputBaseDir}/${project.name}-${project.version}"
         if(suffix)
-          outputDir += '-' + suffix
+        outputDir += '-' + suffix
 
         def copyExplodedResourcesTaskName = 'copyExplodedResources'
         if(product.name != 'default')
-          copyExplodedResourcesTaskName += '_' + product.name
+        copyExplodedResourcesTaskName += '_' + product.name
         if(explodedResources)
-          project.task(copyExplodedResourcesTaskName) { task ->
+        project.task(copyExplodedResourcesTaskName) { task ->
 
-            for(def explodedResource in explodedResources) {
-              def f = project.file(explodedResource)
-              if(f.exists() && f.isDirectory()) {
-                inputs.dir f
-                outputs.dir "$outputDir/$explodedResource"
-              }
-              else if(f.exists() && f.isFile()) {
-                inputs.file f
-                outputs.file "$outputDir/$explodedResource"
-              }
+          for(def explodedResource in explodedResources) {
+            def f = project.file(explodedResource)
+            if(f.exists() && f.isDirectory()) {
+              inputs.dir f
+              outputs.dir "$outputDir/$explodedResource"
             }
-
-            doLast {
-              for(def explodedResource in explodedResources) {
-                logger.warn 'Copying exploded resource from {} into {}', explodedResource, "$outputDir/$explodedResource"
-                project.copy {
-                  from explodedResource
-                  into "$outputDir/$explodedResource"
-                }
-              }
+            else if(f.exists() && f.isFile()) {
+              inputs.file f
+              outputs.file "$outputDir/$explodedResource"
             }
           }
 
+          doLast {
+            for(def explodedResource in explodedResources) {
+              logger.warn 'Copying exploded resource from {} into {}', explodedResource, "$outputDir/$explodedResource"
+              project.copy {
+                from explodedResource
+                into "$outputDir/$explodedResource"
+              }
+            }
+          }
+        }
+
         def buildTaskName = 'oneJarBuild'
         if(product.name != 'default')
-          buildTaskName += '_' + product.name
+        buildTaskName += '_' + product.name
 
         project.task(buildTaskName) { task ->
 
@@ -138,7 +145,7 @@ class OneJarPlugin implements Plugin<Project> {
           inputs.files project.configurations.runtime.files
 
           if(productConfig)
-            inputs.files productConfig.files
+          inputs.files productConfig.files
 
           def baseName = "${project.name}"
           def destFile = "${outputDir}/${baseName}.jar"
@@ -157,7 +164,7 @@ class OneJarPlugin implements Plugin<Project> {
 
           def versionFileName = "${outputDir}/VERSION"
           if(platform == 'windows' || launchers.contains('windows'))
-            versionFileName += '.txt'
+          versionFileName += '.txt'
           outputs.file versionFileName
 
           doLast {
@@ -172,7 +179,7 @@ class OneJarPlugin implements Plugin<Project> {
                   attribute name: key, value: value
                 }
                 if(!project.onejar.manifest.attributes.containsKey('Built-By'))
-                  attribute name: 'Built-By', value: System.getProperty('user.name')
+                attribute name: 'Built-By', value: System.getProperty('user.name')
               }
               lib {
                 project.configurations.runtime.each { file ->
@@ -189,7 +196,7 @@ class OneJarPlugin implements Plugin<Project> {
                 }
                 project.onejar.additionalProductFiles.each { obj ->
                   if(obj instanceof Closure)
-                    obj = obj(product)
+                  obj = obj(product)
                   obj.each { file ->
                     if(!excludeFile(file) && !addedFiles.contains(file)) {
                       fileset(file: file)
@@ -230,7 +237,7 @@ language: $language
 """
             project.onejar.onProductGeneration.each { obj ->
               if(obj instanceof Closure)
-                obj(product, outputDir)
+              obj(product, outputDir)
             }
 
             project.logger.info 'Created one-jar: {}', destFile
@@ -239,7 +246,7 @@ language: $language
           task.dependsOn project.tasks.prepareOneJar
 
           if(explodedResources)
-            task.dependsOn copyExplodedResourcesTaskName
+          task.dependsOn copyExplodedResourcesTaskName
 
           project.tasks.build.dependsOn task
         } // build task
@@ -247,7 +254,7 @@ language: $language
         if(project.onejar.archiveProducts) {
           def archiveTaskName = 'oneJarArchiveProduct'
           if(product.name != 'default')
-            archiveTaskName += '_' + product.name
+          archiveTaskName += '_' + product.name
 
           def archiveType = launchers.contains('windows') ? Zip : Tar
 

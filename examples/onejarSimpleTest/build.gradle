@@ -5,8 +5,8 @@ dependencies {
   compile 'org.apache.commons:commons-lang3:3.0'
 }
 
-jar {
-  manifest { attributes 'Main-Class': 'onejarsimpletest.Main' }
+ext {
+  mainClass = 'onejarsimpletest.Main'
 }
 
 onejar {

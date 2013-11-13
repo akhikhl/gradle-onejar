@@ -6,18 +6,18 @@ dependencies {
   compile 'commons-io:commons-io:2.4'
 }
 
-configurations { 
+configurations {
   product_v2_3
-  product_v2_4 
+  product_v2_4
 }
 
-dependencies { 
+dependencies {
   product_v2_3 'commons-io:commons-io:2.3'
   product_v2_4 'commons-io:commons-io:2.4'
 }
 
-jar {
-  manifest { attributes 'Main-Class': 'onejarmulticonfig.Main' }
+ext {
+  mainClass = 'onejarmulticonfig.Main'
 }
 
 onejar {
