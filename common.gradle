@@ -30,12 +30,12 @@ afterEvaluate {
 
   if(plugins.findPlugin('java') || plugins.findPlugin('groovy')) {
 
-    if(tasks.findByName('testCompile')) {
+    if(tasks.findByName('test')) {
       dependencies {
         testCompile 'junit:junit:4.11'
         if(!plugins.findPlugin('groovy'))
-        testCompile 'org.codehaus.groovy:groovy-all:2.1.9'
-        testCompile 'org.spockframework:spock-maven:0.7-groovy-2.0'
+          testCompile 'org.codehaus.groovy:groovy-all:2.1.9'
+        testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'  
       }
     }
 
