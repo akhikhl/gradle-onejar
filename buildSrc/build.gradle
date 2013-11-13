@@ -1,3 +1,5 @@
+apply plugin: 'base' // add "clean" task to the root project.
+
 subprojects {
   apply plugin: 'maven'
 

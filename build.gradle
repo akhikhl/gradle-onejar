@@ -13,7 +13,7 @@ buildscript {
   }
 }
 
-apply plugin: 'base' // To add "clean" task to the root project.
+apply plugin: 'base' // add "clean" task to the root project.
 
 ext {
   generateSources = true
@@ -25,3 +25,17 @@ ext {
 subprojects {
   apply from: rootProject.file('common.gradle')
 }
+
+task('buildSrc_uploadArchives', type: GradleBuild) { task ->
+  dir = 'buildSrc'
+  tasks = [ 'uploadArchives' ]
+}
+
+uploadArchives.dependsOn buildSrc_uploadArchives
+
+task('buildSrc_clean', type: GradleBuild) { task ->
+  dir = 'buildSrc'
+  tasks = [ 'clean' ]
+}
+
+clean.finalizedBy buildSrc_clean
