@@ -2,11 +2,12 @@
 <metadata>
   <groupId>org.akhikhl.gradle-onejar</groupId>
   <artifactId>gradle-onejar</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <versioning>
     <versions>
       <version>0.0.2</version>
+      <version>0.0.3</version>
     </versions>
-    <lastUpdated>20131027100136</lastUpdated>
+    <lastUpdated>20131113141838</lastUpdated>
   </versioning>
 </metadata>
