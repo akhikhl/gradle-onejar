@@ -1,8 +1,6 @@
 buildscript {
   apply plugin: 'maven'
-
-  // It is not recommended to put infrastructure-specific repositories here.
-  // Better place for this would be "$HOME/.gradle/init.d/"
+  
   repositories {
     mavenLocal()
     mavenCentral()
@@ -13,29 +11,12 @@ buildscript {
   }
 }
 
-apply plugin: 'base' // add "clean" task to the root project.
-
 ext {
+  group = 'org.akhikhl.gradle-onejar'
+  version = '0.0.3'  
   generateSources = true
   generateJavadoc = true
-  mavenGroupId = 'org.akhikhl.gradle-onejar'
-  mavenVersion = '0.0.3'  
 }
 
-subprojects {
-  apply from: rootProject.file('common.gradle')
-}
+apply from: file('root.gradle')
 
-task('buildSrc_uploadArchives', type: GradleBuild) { task ->
-  dir = 'buildSrc'
-  tasks = [ 'uploadArchives' ]
-}
-
-uploadArchives.dependsOn buildSrc_uploadArchives
-
-task('buildSrc_clean', type: GradleBuild) { task ->
-  dir = 'buildSrc'
-  tasks = [ 'clean' ]
-}
-
-clean.finalizedBy buildSrc_clean
