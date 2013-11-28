@@ -15,7 +15,7 @@ class OneJarPlugin implements Plugin<Project> {
 
   void apply(final Project project) {
 
-    // the project supposed to be "java" or "groovy" already
+    // the project is supposed to be "java" or "groovy" already
 
     project.extensions.create('onejar', OneJarPluginExtension)
 
@@ -25,9 +25,35 @@ class OneJarPlugin implements Plugin<Project> {
 
     project.task('prepareOneJar') { dependsOn project.tasks.assemble, project.tasks.check }
 
+    project.task 'run', type: JavaExec
+    project.task 'debug', type: JavaExec
+
     project.afterEvaluate {
 
-      if(!project.tasks.jar.manifest.attributes.'Main-Class' && project.ext.has('mainClass')) {
+      def mainClass
+      if(project.ext.has('mainClass'))
+        mainClass = project.ext.mainClass
+      else
+        mainClass = project.tasks.jar.manifest.attributes.'Main-Class'
+
+      project.tasks.run {
+        dependsOn: project.tasks.classes
+        main = mainClass
+        classpath = project.sourceSets.main.runtimeClasspath
+        if(project.ext.has('programArgs'))
+          args project.ext.programArgs
+      }
+
+      project.tasks.debug {
+        dependsOn: project.tasks.classes
+        main = mainClass
+        classpath = project.sourceSets.main.runtimeClasspath
+        if(project.ext.has('programArgs'))
+          args project.ext.programArgs
+        debug = true
+      }
+
+      if(project.tasks.jar.manifest.attributes.'Main-Class' != mainClass) {
         // translate netbeans-compatible declaration of main-class to jar-manifest-attribute
         project.jar {
           manifest { attributes 'Main-Class': project.ext.mainClass }
