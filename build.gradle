@@ -7,15 +7,15 @@ buildscript {
   }
 
   dependencies {
-    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.3'
+    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.4'
   }
 }
 
 ext {
   group = 'org.akhikhl.gradle-onejar'
-  version = '0.0.3'  
-  generateSources = true
-  generateJavadoc = true
+  version = '0.0.4'
+  generateSources = false
+  generateJavadoc = false
 }
 
 apply from: file('root.gradle')
