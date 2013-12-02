@@ -42,6 +42,10 @@ class OneJarPlugin implements Plugin<Project> {
         classpath = project.sourceSets.main.runtimeClasspath
         if(project.ext.has('programArgs'))
           args project.ext.programArgs
+        if(project.ext.has('args'))
+          args project.ext.args
+        if(project.ext.has('jvmArgs'))
+          jvmArgs project.ext.jvmArgs
       }
 
       project.tasks.debug {
@@ -50,6 +54,10 @@ class OneJarPlugin implements Plugin<Project> {
         classpath = project.sourceSets.main.runtimeClasspath
         if(project.ext.has('programArgs'))
           args project.ext.programArgs
+        if(project.ext.has('args'))
+          args project.ext.args
+        if(project.ext.has('jvmArgs'))
+          jvmArgs project.ext.jvmArgs
         debug = true
       }
 
