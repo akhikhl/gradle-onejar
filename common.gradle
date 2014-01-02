@@ -29,6 +29,13 @@ afterEvaluate {
     }
   }
 
+  if(project.parent.name == 'libs') {
+    // lib projects should be always installed into "$HOME/.m2"
+    project.tasks.build.finalizedBy project.tasks.install
+    rootProject.tasks.findByName('buildExamples')?.dependsOn project.tasks.install
+    rootProject.tasks.findByName('buildApps')?.dependsOn project.tasks.install
+  }
+
   if(plugins.findPlugin('java') || plugins.findPlugin('groovy')) {
 
     if(tasks.findByName('test')) {
@@ -38,16 +45,6 @@ afterEvaluate {
           testCompile "org.codehaus.groovy:groovy-all:$groovy_version"
         testCompile "org.spockframework:spock-core:$spock_version"
       }
-    }
-
-    if(project.parent.name == 'libs') {
-      // lib projects should be always installed into "$HOME/.m2"
-      project.tasks.build.finalizedBy project.tasks.install
-    }
-
-    if(project.parent.name == 'apps' || project.parent.name == 'examples') {
-      // apps and examples should not be uploaded to maven repository
-      project.tasks.uploadArchives.enabled = false
     }
 
     task('createFolders', description: 'Creates the source folders if they do not exist.') << {

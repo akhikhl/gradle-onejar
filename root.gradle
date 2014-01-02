@@ -3,8 +3,24 @@
 
 apply plugin: 'base' // add "clean" task to the root project.
 
-subprojects {
-  apply from: rootProject.file('common.gradle')
+task('build')
+
+def examplesDir = file('examples')
+if(examplesDir.exists()) {
+
+  task('buildExamples', type: GradleBuild) { task ->
+    dir = examplesDir
+    tasks = [ 'build' ]
+  }
+  
+  build.finalizedBy buildExamples
+  
+  task('cleanExamples', type: GradleBuild) { task ->
+    dir = examplesDir
+    tasks = [ 'clean' ]
+  }
+  
+  clean.dependsOn cleanExamples
 }
 
 if(file('buildSrc').exists()) {

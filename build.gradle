@@ -18,5 +18,10 @@ ext {
   generateJavadoc = false
 }
 
-apply from: file('root.gradle')
+apply from: 'root.gradle'
+
+subprojects {
+  apply from: rootProject.file('common.gradle')
+}
+
 
