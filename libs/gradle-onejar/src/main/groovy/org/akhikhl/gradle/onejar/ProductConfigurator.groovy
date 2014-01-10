@@ -1,6 +1,7 @@
 package org.akhikhl.gradle.onejar
 
 import org.gradle.api.Project
+import org.gradle.api.tasks.bundling.*
 
 class ProductConfigurator {
 
@@ -11,6 +12,7 @@ class ProductConfigurator {
   private final String language
   private final String productTaskSuffix
   private final String outputBaseDir
+  private final String productSuffix
   private final String outputDir
   private final String baseName
   private final String destFile
@@ -27,8 +29,8 @@ class ProductConfigurator {
     language = product.language ?: 'en'
     productTaskSuffix = (product.name == 'default' ? '' : '_' + (product.suffix ?: product.name))
     outputBaseDir = "${project.buildDir}/output"
-    def outputDirSuffix = (product.name == 'default' ? '' : '-' + (product.suffix ?: product.name))
-    outputDir = "${outputBaseDir}/${project.name}-${project.version}${outputDirSuffix}"
+    productSuffix = (product.name == 'default' ? '' : '-' + (product.suffix ?: product.name))
+    outputDir = "${outputBaseDir}/${project.name}-${project.version}${productSuffix}"
     baseName = "${project.name}"
     destFile = "${outputDir}/${baseName}.jar"
     mainJar = ProjectUtils.getMainJar(project)
@@ -88,7 +90,7 @@ class ProductConfigurator {
       from new File(outputDir)
       into "${project.name}"
       destinationDir = new File(outputBaseDir)
-      classifier = getProductSuffix(product)
+      classifier = productSuffix
       if(archiveType == Tar) {
         extension = '.tar.gz'
         compression = Compression.GZIP
