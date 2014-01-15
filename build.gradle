@@ -1,21 +1,9 @@
-buildscript {
-  apply plugin: 'maven'
-  
-  repositories {
-    mavenLocal()
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.4'
-  }
-}
-
 ext {
   group = 'org.akhikhl.gradle-onejar'
   version = '0.0.4'
-  generateSources = false
-  generateJavadoc = false
+  groovy_version = '2.2.1'
+  generateSources = true
+  generateJavadoc = true
 }
 
 apply from: 'root.gradle'
