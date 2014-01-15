@@ -1,6 +1,6 @@
 ext {
   group = 'org.akhikhl.gradle-onejar'
-  version = '0.0.4'
+  version = '0.0.5'
   groovy_version = '2.2.1'
   generateSources = true
   generateJavadoc = true

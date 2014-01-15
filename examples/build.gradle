@@ -7,7 +7,7 @@ buildscript {
   }
   
   dependencies {
-    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.4'
+    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.5'
   }
 }
 
@@ -15,7 +15,7 @@ apply plugin: 'base' // add "clean" task to the root project.
 
 ext {
   group = 'org.akhikhl.gradle-onejar'
-  version = '0.0.4'
+  version = '0.0.5'
   groovy_version = '2.2.1'
   logback_version = '1.0.13'
 }
