@@ -7,9 +7,9 @@ Gradle plugin for generating single jar from java/groovy application.
 
 * [Usage](#usage)
 * [Tasks](#tasks)
-  * [productBuild](#productBuild-task)
-  * [productArchive](#productArchive-task)
-  * [copyExplodedResources](#copyExplodedResources-task)
+  * [productBuild](#productbuild-task)
+  * [productArchive](#productarchive-task)
+  * [copyExplodedResources](#copyexplodedresources-task)
   * [run](#run-task)
   * [debug](#debug-task)
 
