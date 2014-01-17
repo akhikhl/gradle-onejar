@@ -89,3 +89,7 @@ onejar {
   beforeProductGeneration { .. }
 }
 ```
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/akhikhl/gradle-onejar/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
