@@ -62,7 +62,10 @@ class OneJarPluginExtension {
   def onProductGeneration = []
 
   def additionalProductFiles(newValue) {
-    additionalProductFiles.add newValue
+    if(newValue instanceof Collection)
+      additionalProductFiles.addAll newValue
+    else
+      additionalProductFiles.add newValue
   }
 
   def beforeProductGeneration(newValue) {
