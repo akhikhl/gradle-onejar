@@ -1,3 +1,10 @@
+/*
+ * gradle-onejar
+ *
+ * Copyright (c) 2014  Andrey Hihlovskiy.
+ *
+ * See the file "license.txt" for copying and usage permission.
+ */
 package org.akhikhl.gradle.onejar
 
 import org.gradle.api.*
