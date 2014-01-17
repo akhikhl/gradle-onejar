@@ -10,15 +10,17 @@ they are used by gradle-onejar.
 ##Content of this document
 
 * [Why gradle-onejar?](#why-gradle-onejar)
-* [Usage](#usage)
+* [Include in build.gradle](#include-in-build.gradle)
+* [Simplest use](#simplest-use)
 * [Tasks](#tasks)
   * [productBuild](#productbuild-task)
   * [productArchive](#productarchive-task)
   * [copyExplodedResources](#copyexplodedresources-task)
   * [run](#run-task)
   * [debug](#debug-task)
-* [Products](#products)
 * [Configuration](#configuration)
+* [Product-specific configuration](#product-specific-configuration)
+* [Copyright and License](#copyright-and-license)
 
 ##Why gradle-onejar?
 
@@ -31,7 +33,7 @@ automatic assembly of the delivery package with your favorite build tool - gradl
 
 Answer is simple: use gradle-onejar. It's free and it does exactly what you need.
 
-##Usage:
+##Include in build.gradle:
 
 Add the following to "build.gradle" of your web-application:
 
@@ -50,6 +52,18 @@ apply from: 'gradle-onejar.plugin'
 
 or feel free copying (and modifying) the declarations from this script to your "build.gradle".
 
+##Simplest use
+
+Simply run from the command-line:
+
+```shell
+gradle build
+```
+
+**Effect:** gradle-onejar first compiles the current project to usual location "build/libs",
+then it assembles current project's JAR and all it's dependencies into single JAR
+with name "build/output/${project.name}-${project.version}/${project.name}.jar".
+
 ##Tasks
 
 gradle-onejar inserts the following tasks into java/groovy application lifecycle:
@@ -64,12 +78,12 @@ Below is information on each task.
 
 ###productBuild task
 
-The task productBuild archives jar-files of the current project and of all it's dependencies in a special "superjar" denoted by path
-"${project.projectDir}/build/output/${project.name}.jar".
+The task productBuild archives jar-files of the current project and of all it's dependencies in a "superjar" denoted by path
+"${project.projectDir}/build/output/${project.name}-${project.version}/${project.name}.jar".
 
 Additionally this task creates three files:
 
-1. "${project.name}..bat" file for launching the program under Windows.
+1. "${project.name}.bat" file for launching the program under Windows.
 2. "${project.name}.sh" file for launching the program under Linux.
 3. "VERSION" file containing version information.
 
@@ -94,16 +108,19 @@ This task starts the application via JavaExec task, passing project classpath an
 Additionally it sets property "debug" to "true", so that the programmer can debug the application
 under NetBeans, Eclipse or any other IDE, supporting java debugging.
 
-##Products
-
-gradle-onejar supports concept of multiple products. Each product is essentially
-a configuration with specific dependencies and/or additional files.
-
-If you don't specify any products, gradle-onejar generates the default product for you.
-
 ##Configuration
 
-gradle-onejar supports the following configuration:
+gradle-onejar requires the following configuration:
+
+```groovy
+ext {
+  mainClass = 'mypackage.MyClass'
+}
+```
+
+here mypackage.MyClass should denote an existing java class implementing static main function.
+
+gradle-onejar supports the following configuration extension:
 
 ```groovy
 onejar {
@@ -121,9 +138,8 @@ onejar {
 }
 ```
 
-<<<<<<< HEAD
 The whole "onejar" configuration is optional. Even if it is omitted, gradle-onejar
-will generate the default product with the default properties.
+generates the default product with the default properties.
 Below is the detailed information on each configuration property.
 
 **mainJar** - optional, java.lang.String or java.io.File or Closure, returning String or File.
@@ -174,6 +190,63 @@ products specified, beforeProductGeneration is invoked only once.
 **onProductGeneration** - optional closure. When specified, the closure will be invoked
 after each product generation. The closure receives two parameters: product hashmap
 and outputDir.
+
+##Product-specific configuration
+
+gradle-onejar supports concept of multiple products. Each product gets it's own "superjar".
+For example, if you define two products:
+
+```groovy
+onejar {
+  product name: 'v2_3'
+  product name: 'v2_4'
+}
+```
+then gradle-onejar will generate two products for you:
+
+```shell
+onejarMultiConfig-0.0.5-v2_3
+  onejarMultiConfig.jar
+  onejarMultiConfig.sh
+  VERSION
+onejarMultiConfig-0.0.5-v2_4
+  onejarMultiConfig.jar
+  onejarMultiConfig.sh
+  VERSION
+```
+
+If you don't specify any products, gradle-onejar generates the default product for you.
+
+You can tailor product-specific configurations within your project:
+
+```groovy
+dependencies {
+  // dependencies common to all products
+  compile 'org.apache.commons:commons-lang3:3.0'
+  compile 'commons-io:commons-io:2.4'
+}
+
+configurations {
+  // product-specific configurations
+  product_v2_3
+  product_v2_4
+}
+
+dependencies {
+  // product-specific dependencies
+  product_v2_3 'commons-io:commons-io:2.3'
+  product_v2_4 'commons-io:commons-io:2.4'
+}
+
+onejar {
+  // each product automatically recognizes linked configuration and dependencies
+  product name: 'v2_3'
+  product name: 'v2_4'
+}
+```
+
+Note that product-specific configurations are linked to gradle-onejar products by convension:
+the product with name "XYZ" recognizes and uses linked configuration "product_XYZ"
 
 ##Copyright and License
 
