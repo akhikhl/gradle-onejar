@@ -121,6 +121,7 @@ onejar {
 }
 ```
 
+<<<<<<< HEAD
 The whole "onejar" configuration is optional. Even if it is omitted, gradle-onejar
 will generate the default product with the default properties.
 Below is the detailed information on each configuration property.
@@ -173,3 +174,6 @@ products specified, beforeProductGeneration is invoked only once.
 **onProductGeneration** - optional closure. When specified, the closure will be invoked
 after each product generation. The closure receives two parameters: product hashmap
 and outputDir.
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/akhikhl/gradle-onejar/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
