@@ -10,6 +10,5 @@ apply from: 'root.gradle'
 
 subprojects {
   apply from: rootProject.file('common.gradle')
+  apply from: rootProject.file('sonatype.gradle')
 }
-
-
