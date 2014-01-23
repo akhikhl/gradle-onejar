@@ -62,7 +62,8 @@ gradle build
 
 **Effect:** gradle-onejar first compiles the current project to usual location "build/libs",
 then it assembles current project's JAR and all it's dependencies into single JAR
-with name "build/output/${project.name}-${project.version}/${project.name}.jar".
+with name:
+"build/output/${project.name}-${project.version}/${project.name}.jar".
 
 ##Tasks
 
@@ -120,7 +121,7 @@ ext {
 
 here mypackage.MyClass should denote an existing java class implementing static main function.
 
-gradle-onejar supports the following configuration extension:
+gradle-onejar supports (but not requires) the following configuration extension:
 
 ```groovy
 onejar {
