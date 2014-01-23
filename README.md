@@ -221,12 +221,6 @@ If you don't specify any products, gradle-onejar generates the default product f
 You can tailor product-specific configurations within your project:
 
 ```groovy
-dependencies {
-  // dependencies common to all products
-  compile 'org.apache.commons:commons-lang3:3.0'
-  compile 'commons-io:commons-io:2.4'
-}
-
 configurations {
   // product-specific configurations
   product_v2_3
@@ -234,6 +228,9 @@ configurations {
 }
 
 dependencies {
+  // dependencies common to all products
+  compile 'org.apache.commons:commons-lang3:3.0'
+  compile 'commons-io:commons-io:2.4'
   // product-specific dependencies
   product_v2_3 'commons-io:commons-io:2.3'
   product_v2_4 'commons-io:commons-io:2.4'
@@ -247,7 +244,7 @@ onejar {
 ```
 
 Note that product-specific configurations are linked to gradle-onejar products by convension:
-the product with name "XYZ" recognizes and uses linked configuration "product_XYZ"
+the product with name "XYZ" recognizes and uses gradle configuration "product_XYZ"
 
 ##Copyright and License
 
