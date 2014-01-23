@@ -1,4 +1,4 @@
-#gradle-onejar [![Build Status](https://travis-ci.org/akhikhl/gretty.png?branch=master)](https://travis-ci.org/akhikhl/gretty) [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/akhikhl/gradle-onejar/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+#gradle-onejar [![Maintainer Status](http://stillmaintained.com/akhikhl/gradle-onejar.png)](http://stillmaintained.com/akhikhl/gradle-onejar) [![Build Status](https://travis-ci.org/akhikhl/gradle-onejar.png?branch=master)](https://travis-ci.org/akhikhl/gradle-onejar) [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/akhikhl/gradle-onejar/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 Gradle plugin for generating single jar from java/groovy application.
 
