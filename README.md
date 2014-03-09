@@ -246,9 +246,7 @@ the product with name "XYZ" recognizes and uses gradle configuration "product_XY
 
 Copyright 2014 (c) Andrey Hihlovskiy
 
-All versions, present and past, of gretty-plugin are licensed under MIT license:
-
-* [MIT](license.txt)
+All versions, present and past, of gretty-plugin are licensed under [MIT license](license.txt).
 
 Many thanks to P. Simon Tuffs for [OneJAR library](http://one-jar.sourceforge.net/)
 and [one-jar-ant-task](http://one-jar.sourceforge.net/index.php?page=getting-started&file=ant):
@@ -259,4 +257,4 @@ I do not own "onejar" trademark nor am I affiliated with P. Simon Tuffs in any w
 The One-JAR license is a BSD-style license. Compliance with this license is assured 
 by including the "one-jar-license.txt" file in the One-JAR archive. gradle-onejar does this 
 automatically, putting this file in a "doc" directory in the archive.
-["one-jar-license.txt"](#one-jar-license.txt) is also included with the sources of gradle-onejar.
+["one-jar-license.txt"](one-jar-license.txt) is also included with the sources of gradle-onejar.
