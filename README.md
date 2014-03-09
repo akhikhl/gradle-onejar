@@ -3,10 +3,6 @@
 
 Gradle plugin for generating single jar for JVM-based application.
 
-Many thanks to P. Simon Tuffs for [OneJAR library](http://one-jar.sourceforge.net/)
-and [one-jar-ant-task](http://one-jar.sourceforge.net/index.php?page=getting-started&file=ant):
-they are used by gradle-onejar.
-
 ##Content of this document
 
 * [Why gradle-onejar?](#why-gradle-onejar)
@@ -254,4 +250,13 @@ All versions, present and past, of gretty-plugin are licensed under MIT license:
 
 * [MIT](license.txt)
 
+Many thanks to P. Simon Tuffs for [OneJAR library](http://one-jar.sourceforge.net/)
+and [one-jar-ant-task](http://one-jar.sourceforge.net/index.php?page=getting-started&file=ant):
+they are used by gradle-onejar.
 
+I do not own "onejar" trademark nor am I affiliated with P. Simon Tuffs in any way.
+
+The One-JAR license is a BSD-style license. Compliance with this license is assured 
+by including the "one-jar-license.txt" file in the One-JAR archive. gradle-onejar does this 
+automatically, putting this file in a "doc" directory in the archive.
+["one-jar-license.txt"](#one-jar-license.txt) is also included with the sources of gradle-onejar.
