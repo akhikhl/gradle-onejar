@@ -4,9 +4,9 @@ buildscript {
     mavenLocal()
     mavenCentral()
   }
-
+  
   dependencies {
-    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:+'
+    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.6'
   }
 }
 
@@ -18,4 +18,5 @@ repositories {
 
 if (!project.plugins.findPlugin(org.akhikhl.gradle.onejar.OneJarPlugin))
   project.apply(plugin: org.akhikhl.gradle.onejar.OneJarPlugin)
+
 

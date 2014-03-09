@@ -1,11 +1,9 @@
 buildscript {
-
   repositories {
+    jcenter()
     mavenLocal()
     mavenCentral()
   }
-
-  apply plugin: 'maven'
   
   dependencies {
     classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.5'
@@ -13,6 +11,7 @@ buildscript {
 }
 
 repositories {
+  jcenter()
   mavenLocal()
   mavenCentral()
 }
