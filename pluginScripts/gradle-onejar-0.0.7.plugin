@@ -1,0 +1,22 @@
+buildscript {
+  repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+  }
+  
+  dependencies {
+    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.7'
+  }
+}
+
+repositories {
+  jcenter()
+  mavenLocal()
+  mavenCentral()
+}
+
+if (!project.plugins.findPlugin(org.akhikhl.gradle.onejar.OneJarPlugin))
+  project.apply(plugin: org.akhikhl.gradle.onejar.OneJarPlugin)
+
+

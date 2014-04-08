@@ -9,7 +9,7 @@ buildscript {
 
 ext {
   group = 'org.akhikhl.gradle-onejar'
-  version = '0.0.6'
+  version = '0.0.7'
   groovy_version = '2.2.2'
   spock_version = '0.7-groovy-2.0'
 }

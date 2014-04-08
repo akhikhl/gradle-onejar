@@ -99,7 +99,7 @@ class ProductConfigurator {
       destinationDir = new File(outputBaseDir)
       classifier = productSuffix
       if(archiveType == Tar) {
-        extension = '.tar.gz'
+        extension = 'tar.gz'
         compression = Compression.GZIP
       }
       task.doLast {

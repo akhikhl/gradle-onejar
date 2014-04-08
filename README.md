@@ -1,5 +1,8 @@
 #gradle-onejar 
-[![Maintainer Status](http://stillmaintained.com/akhikhl/gradle-onejar.png)](http://stillmaintained.com/akhikhl/gradle-onejar) [![Build Status](https://travis-ci.org/akhikhl/gradle-onejar.png?branch=master)](https://travis-ci.org/akhikhl/gradle-onejar) [![Latest Version](http://img.shields.io/badge/latest_version-0.0.6-blue.svg)](https://github.com/akhikhl/gradle-onejar/tree/v0.0.6) [![License](http://img.shields.io/badge/license-MIT-ff69b4.svg)](#copyright-and-license)
+[![Maintainer Status](http://stillmaintained.com/akhikhl/gradle-onejar.png)](http://stillmaintained.com/akhikhl/gradle-onejar) 
+[![Build Status](https://travis-ci.org/akhikhl/gradle-onejar.png?branch=master)](https://travis-ci.org/akhikhl/gradle-onejar) 
+[![Latest Version](http://img.shields.io/badge/latest_version-0.0.7-blue.svg)](https://github.com/akhikhl/gradle-onejar/tree/v0.0.7) 
+[![License](http://img.shields.io/badge/license-MIT-ff69b4.svg)](#copyright-and-license)
 
 Gradle plugin for generating single jar for JVM-based application.
 
@@ -202,11 +205,11 @@ onejar {
 then gradle-onejar will generate two products for you:
 
 ```shell
-onejarMultiConfig-0.0.5-v2_3
+onejarMultiConfig-0.0.7-v2_3
   onejarMultiConfig.jar
   onejarMultiConfig.sh
   VERSION
-onejarMultiConfig-0.0.5-v2_4
+onejarMultiConfig-0.0.7-v2_4
   onejarMultiConfig.jar
   onejarMultiConfig.sh
   VERSION
