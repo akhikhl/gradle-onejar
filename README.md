@@ -180,8 +180,8 @@ each element is resolved to a file, the latter is added to each product.
 each element is resolved to a file, the latter is excluded from each product.
 
 **launchParameter** - optional, multiplicity 0..N, string or array of strings
-to be written to the launcher script (.bat or .sh), so that there parameter
-is passed to the program each time the program is started.
+to be written to the launcher script (.bat or .sh), so that these parameters
+are passed to the program each time the program is started.
 
 **beforeProductGeneration** - optional, closure. When specified, the closure will be invoked
 after project is evaluated and before the products are generated. Note that even if there are multiple
