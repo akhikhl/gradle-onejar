@@ -9,8 +9,7 @@ Gradle plugin for generating single jar for JVM-based application.
 ##Content of this document
 
 * [Why gradle-onejar?](#why-gradle-onejar)
-* [Include in build.gradle](#include-in-build.gradle)
-* [Simplest use](#simplest-use)
+* [Usage](#usage)
 * [Tasks](#tasks)
   * [productBuild](#productbuild-task)
   * [productArchive](#productarchive-task)
@@ -21,18 +20,13 @@ Gradle plugin for generating single jar for JVM-based application.
 * [Product-specific configuration](#product-specific-configuration)
 * [Copyright and License](#copyright-and-license)
 
-##Why gradle-onejar?
+## Why gradle-onejar?
 
-You wrote a nice java program, now you want to deliver it to the Customers.
-Would it not be great to deliver your program as a single jar file,
-maybe with auxiliary .bat or .sh, simplifying program start?
+If you are already using gradle, you know that it's not that difficult to create a gradle script that packs your JVM application as a distributable self-contained runnable package.
 
-If you decided: "yes, I want it this way", next question will come: how to implement
-automatic assembly of the delivery package with your favorite build tool - gradle?
+Things get more complicated, if you need to automatically assemble and deliver platform-specific, CPU-architecture-specific, language-specific versions of the same JVM program. This is where gradle-onejar can greatly simplify things, because it supports configuration of so-called "products". 
 
-Answer is simple: use gradle-onejar. It's free and it does exactly what you need.
-
-##Include in build.gradle:
+## Usage
 
 Add the following to "build.gradle" of your web-application:
 
@@ -40,7 +34,17 @@ Add the following to "build.gradle" of your web-application:
 apply from: 'https://raw.github.com/akhikhl/gradle-onejar/master/pluginScripts/gradle-onejar.plugin'
 ```
 
-then do "gradle build" from the command-line.
+then run from the command-line:
+
+```shell
+gradle build
+```
+
+**Effect:** gradle-onejar first compiles the current project to usual location "build/libs",
+then it assembles current project's JAR and all it's dependencies into single JAR
+with name: 
+
+"build/output/${project.name}-${project.version}/${project.name}.jar".
 
 Alternatively, you can download the script from https://raw.github.com/akhikhl/gradle-onejar/master/pluginScripts/gradle-onejar.plugin
 to the project folder and include it like this:
@@ -49,20 +53,7 @@ to the project folder and include it like this:
 apply from: 'gradle-onejar.plugin'
 ```
 
-or feel free copying (and modifying) the declarations from this script to your "build.gradle".
-
-##Simplest use
-
-Simply run from the command-line:
-
-```shell
-gradle build
-```
-
-**Effect:** gradle-onejar first compiles the current project to usual location "build/libs",
-then it assembles current project's JAR and all it's dependencies into single JAR
-with name:
-"build/output/${project.name}-${project.version}/${project.name}.jar".
+You can also copy (and modify) the declarations from the script "gradle-onejar.plugin" to your "build.gradle".
 
 ##Tasks
 
