@@ -36,8 +36,8 @@ class ProductConfigurator {
     language = product.language ?: 'en'
     productTaskSuffix = (product.name == 'default' ? '' : '_' + (product.suffix ?: product.name))
     outputBaseDir = "${project.buildDir}/output"
-    productSuffix = (product.name == 'default' ? '' : '-' + (product.suffix ?: product.name))
-    outputDir = "${outputBaseDir}/${project.name}-${project.version}${productSuffix}"
+    productSuffix = (product.name == 'default' ? '' : (product.suffix ?: product.name))
+    outputDir = "${outputBaseDir}/${project.name}-${project.version}-${productSuffix}"
     baseName = "${project.name}"
     destFile = "${outputDir}/${baseName}.jar"
     mainJar = ProjectUtils.getMainJar(project)

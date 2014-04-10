@@ -1,6 +1,8 @@
 buildscript {
   repositories {
+    mavenLocal()
     jcenter()
+    mavenCentral()
   }
   dependencies {
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
@@ -9,7 +11,7 @@ buildscript {
 
 ext {
   group = 'org.akhikhl.gradle-onejar'
-  version = '0.0.7'
+  version = '0.0.8'
   groovy_version = '2.2.2'
   spock_version = '0.7-groovy-2.0'
 }
@@ -43,8 +45,8 @@ subprojects {
     apply plugin: 'bintray'
 
     repositories {
-      jcenter()
       mavenLocal()
+      jcenter()
       mavenCentral()
     }
     

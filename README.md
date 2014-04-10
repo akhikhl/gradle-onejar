@@ -1,7 +1,7 @@
 #gradle-onejar 
 [![Maintainer Status](http://stillmaintained.com/akhikhl/gradle-onejar.png)](http://stillmaintained.com/akhikhl/gradle-onejar) 
 [![Build Status](https://travis-ci.org/akhikhl/gradle-onejar.png?branch=master)](https://travis-ci.org/akhikhl/gradle-onejar) 
-[![Latest Version](http://img.shields.io/badge/latest_version-0.0.7-blue.svg)](https://github.com/akhikhl/gradle-onejar/tree/v0.0.7) 
+[![Latest Version](http://img.shields.io/badge/latest_version-0.0.8-blue.svg)](https://github.com/akhikhl/gradle-onejar/tree/v0.0.8)
 [![License](http://img.shields.io/badge/license-MIT-ff69b4.svg)](#copyright-and-license)
 
 Gradle plugin for generating single jar for JVM-based application.
