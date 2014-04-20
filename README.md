@@ -1,7 +1,7 @@
 #gradle-onejar 
 [![Maintainer Status](http://stillmaintained.com/akhikhl/gradle-onejar.png)](http://stillmaintained.com/akhikhl/gradle-onejar) 
 [![Build Status](https://travis-ci.org/akhikhl/gradle-onejar.png?branch=master)](https://travis-ci.org/akhikhl/gradle-onejar) 
-[![Latest Version](http://img.shields.io/badge/latest_version-0.0.8-blue.svg)](https://github.com/akhikhl/gradle-onejar/tree/v0.0.8)
+[![Latest Version](http://img.shields.io/badge/latest_version-0.0.9-blue.svg)](https://github.com/akhikhl/gradle-onejar/tree/v0.0.9)
 [![License](http://img.shields.io/badge/license-MIT-ff69b4.svg)](#copyright-and-license)
 
 Gradle plugin for generating single jar for JVM-based application.
@@ -119,11 +119,14 @@ onejar {
   manifest {
     attributes attrName1: attrValue1 [, ...]
   }
-  product name: ..., platform: ..., arch: ..., language: ..., suffix: ..., launchers: [ ... ]
+  product name: 'productName', platform: ..., arch: ..., language: ..., suffix: ..., launchers: [ ... ]
   archiveProducts true|false
   additionalProductFiles ... [, ...]
   excludeProductFile ... [, ...]
-  launchParameter ...
+  launchParameter 'param1'
+  launchParameter 'param2'
+  jvmMinMemory '512m'
+  jvmMaxMemory '1024m'
   beforeProductGeneration Closure
   onProductGeneration Closure
 }
@@ -152,7 +155,8 @@ When omitted, gradle-onejar does not alter onejar manifest.
 
 - **arch** - optional, string, denotes the target architecture. Does not affect product generation (yet).
 
-- **language** - optional, string, denotes the target language. Does not affect product generation (yet).
+- **language** - optional, string, denotes the target language. When specified, the value is added
+  to JVM parameters in launcher scripts in the form -Duser.language=$language.
 
 - **suffix** - optional, string, denotes the suffix to be added to the generated files/folders.
 
@@ -173,6 +177,12 @@ each element is resolved to a file, the latter is excluded from each product.
 **launchParameter** - optional, multiplicity 0..N, string or array of strings
 to be written to the launcher script (.bat or .sh), so that these parameters
 are passed to the program each time the program is started.
+
+**jvmMinMemory** - optional, string. When specified, the value is added 
+to JVM parameters in launcher scripts in the form -Xms$jvmMinMemory.
+
+**jvmMaxMemory** - optional, string. When specified, the value is added 
+to JVM parameters in launcher scripts in the form -Xmx$jvmMaxMemory.
 
 **beforeProductGeneration** - optional, closure. When specified, the closure will be invoked
 after project is evaluated and before the products are generated. Note that even if there are multiple
