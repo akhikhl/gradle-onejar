@@ -33,7 +33,7 @@ class ProductConfigurator {
     this.product = product
     platform = product.platform ?: 'any'
     arch = product.arch ?: 'any'
-    language = product.language ?: 'en'
+    language = product.language
     productTaskSuffix = (product.name == 'default' ? '' : '_' + (product.suffix ?: product.name))
     outputBaseDir = "${project.buildDir}/output"
     productSuffix = (product.name == 'default' ? '' : (product.suffix ?: product.name))
@@ -221,7 +221,9 @@ class ProductConfigurator {
 
   private void generateLauncherFiles() {
 
-    def launchParameters = project.onejar.launchParameters.join(' ')
+    String jvmParamLanguage = language ? " -Duser.language=$language" : ''
+
+    String launchParameters = project.onejar.launchParameters.join(' ')
 
     if(launchers.contains('shell')) {
       def launchScriptFile = new File("${outputDir}/${baseName}.sh")
@@ -233,13 +235,13 @@ SOURCE="$(readlink "$SOURCE")"
 [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-java -Dfile.encoding=UTF8 -Xms512m -Xmx1024m -jar ${DIR}/''' + baseName + '.jar ' + launchParameters + ' "$@"'
+java -Dfile.encoding=UTF8 -Xms512m -Xmx1024m''' + jvmParamLanguage + ' -jar ${DIR}/' + baseName + '.jar ' + launchParameters + ' "$@"'
       launchScriptFile.setExecutable(true)
     }
 
     if(launchers.contains('windows')) {
       def launchScriptFile = new File("${outputDir}/${baseName}.bat")
-      launchScriptFile.text = "@java -Dfile.encoding=UTF8 -Xms512m -Xmx1024m -jar %~dp0\\${baseName}.jar $launchParameters %*"
+      launchScriptFile.text = "@java -Dfile.encoding=UTF8 -Xms512m -Xmx1024m$jvmParamLanguage -jar %~dp0\\${baseName}.jar $launchParameters %*"
     }
   }
 
@@ -247,9 +249,9 @@ java -Dfile.encoding=UTF8 -Xms512m -Xmx1024m -jar ${DIR}/''' + baseName + '.jar 
     new File(versionFileName).text = """\
 product: ${project.name}
 version: ${project.version}
-platform: $platform
-architecture: $arch
-language: $language
+platform: ${platform}
+architecture: ${arch}
+language: ${language ?: 'any'}
 """
   }
 }
