@@ -19,13 +19,15 @@ class OneJarPluginExtension {
   def mainJar = null
   def manifest = new Manifest()
   private boolean defaultProducts = true
-  def products = [[ name: "default" ]]
+  List products = [[ name: "default" ]]
   boolean archiveProducts = false
-  def additionalProductFiles = []
-  def beforeProductGeneration = []
-  def excludeProductFile = []
-  def launchParameters = []
-  def onProductGeneration = []
+  List additionalProductFiles = []
+  List beforeProductGeneration = []
+  List excludeProductFile = []
+  List launchParameters = []
+  List onProductGeneration = []
+  String jvmMinMemory
+  String jvmMaxMemory
 
   def additionalProductFiles(newValue) {
     if(newValue instanceof Collection)

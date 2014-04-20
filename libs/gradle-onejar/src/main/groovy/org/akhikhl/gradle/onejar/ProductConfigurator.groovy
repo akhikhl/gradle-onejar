@@ -221,11 +221,29 @@ class ProductConfigurator {
 
   private void generateLauncherFiles() {
 
-    String jvmParamLanguage = language ? " -Duser.language=$language" : ''
+    def addCommonParams = { params ->
 
-    String launchParameters = project.onejar.launchParameters.join(' ')
+      if(project.onejar.jvmMinMemory)
+        params.add('-Xms' + project.onejar.jvmMinMemory)
+
+      if(project.onejar.jvmMaxMemory)
+        params.add('-Xmx' + project.onejar.jvmMaxMemory)
+
+      params.add('-Dfile.encoding=UTF8')
+
+      if(language)
+        params.add('-Duser.language=' + language)
+    }
 
     if(launchers.contains('shell')) {
+
+      def params = []
+      addCommonParams(params)
+      params.add('-jar ${DIR}/' + baseName + '.jar')
+      params.addAll(project.onejar.launchParameters)
+      params.add('"$@"')
+      params = params.join(' ')
+
       def launchScriptFile = new File("${outputDir}/${baseName}.sh")
       launchScriptFile.text = '''#!/bin/bash
 SOURCE="${BASH_SOURCE[0]}"
@@ -235,13 +253,21 @@ SOURCE="$(readlink "$SOURCE")"
 [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-java -Dfile.encoding=UTF8 -Xms512m -Xmx1024m''' + jvmParamLanguage + ' -jar ${DIR}/' + baseName + '.jar ' + launchParameters + ' "$@"'
+java ''' + params
       launchScriptFile.setExecutable(true)
     }
 
     if(launchers.contains('windows')) {
+
+      def params = []
+      addCommonParams(params)
+      params.add('-jar %~dp0\\' + baseName + '.jar')
+      params.addAll(project.onejar.launchParameters)
+      params.add('%*')
+      params = params.join(' ')
+
       def launchScriptFile = new File("${outputDir}/${baseName}.bat")
-      launchScriptFile.text = "@java -Dfile.encoding=UTF8 -Xms512m -Xmx1024m$jvmParamLanguage -jar %~dp0\\${baseName}.jar $launchParameters %*"
+      launchScriptFile.text = '@java ' + params
     }
   }
 
