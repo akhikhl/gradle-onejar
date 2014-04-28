@@ -8,6 +8,7 @@
 package org.akhikhl.gradle.onejar
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.bundling.*
 
 class ProductConfigurator {
@@ -17,9 +18,11 @@ class ProductConfigurator {
   private final String platform
   private final String arch
   private final String language
+  private final String productName
   private final String productTaskSuffix
+  private final Configuration productConfig
+  private final Configuration providedConfig
   private final String outputBaseDir
-  private final String productSuffix
   private final String outputDir
   private final String baseName
   private final String destFile
@@ -31,13 +34,40 @@ class ProductConfigurator {
   ProductConfigurator(Project project, Map product) {
     this.project = project
     this.product = product
-    platform = product.platform ?: 'any'
-    arch = product.arch ?: 'any'
+    platform = product.platform
+    arch = product.arch
     language = product.language
-    productTaskSuffix = (product.name == 'default' ? '' : '_' + (product.suffix ?: product.name))
+    String productConfigName
+    if(product.name) {
+      productName = product.name
+      productConfigName = 'product_' + product.name
+    }
+    else {
+      String productName = project.name + '-' + project.version
+      if(product.suffix)
+        productName += '-' + product.suffix
+      else {
+        if(platform)
+          productName += '-' + platform
+        if(arch)
+          productName += '-' + arch
+        if(language)
+          productName += '-' + language
+      }
+      this.productName = productName
+      productConfigName = 'product'
+      if(platform)
+        productConfigName += '_' + platform
+      if(arch)
+        productConfigName += '_' + arch
+      if(language)
+        productConfigName += '_' + language
+    }
+    productConfig = project.configurations.findByName(productConfigName)
+    providedConfig = project.configurations.findByName('provided')
+    this.productTaskSuffix = productConfigName
     outputBaseDir = "${project.buildDir}/output"
-    productSuffix = (product.name == 'default' ? '' : (product.suffix ?: product.name))
-    outputDir = "${outputBaseDir}/${project.name}-${project.version}-${productSuffix}"
+    outputDir = "${outputBaseDir}/${productName}"
     baseName = "${project.name}"
     destFile = "${outputDir}/${baseName}.jar"
     mainJar = ProjectUtils.getMainJar(project)
@@ -61,7 +91,7 @@ class ProductConfigurator {
   private void configureCopyExplodedResourcesTask() {
     if(!explodedResources)
       return
-    project.task("copyExplodedResources${productTaskSuffix}") { task ->
+    project.task("copyExplodedResources_${productTaskSuffix}") { task ->
 
       for(def explodedResource in explodedResources) {
         def f = project.file(explodedResource)
@@ -93,31 +123,29 @@ class ProductConfigurator {
 
     def archiveType = launchers.contains('windows') ? Zip : Tar
 
-    project.task("productArchive${productTaskSuffix}", type: archiveType) { task ->
+    project.task("archive_${productTaskSuffix}", type: archiveType) {
       from new File(outputDir)
-      into "${project.name}"
+      into productName
       destinationDir = new File(outputBaseDir)
-      classifier = productSuffix
       if(archiveType == Tar) {
         extension = 'tar.gz'
         compression = Compression.GZIP
       }
-      task.doLast {
+      doLast {
         ant.checksum file: it.archivePath
       }
-      task.dependsOn "productBuild${productTaskSuffix}"
-      project.tasks.build.dependsOn task
+      dependsOn "build_${productTaskSuffix}"
+      project.tasks.build.dependsOn it
     }
   }
 
   private void configureProductBuildTask() {
 
-    project.task("productBuild${productTaskSuffix}") { task ->
+    project.task("build_${productTaskSuffix}") { task ->
 
       inputs.dir "${project.buildDir}/libs"
       inputs.files project.configurations.runtime.files
 
-      def productConfig = project.configurations.findByName("product_${product.name}")
       if(productConfig)
         inputs.files productConfig.files
 
@@ -183,7 +211,7 @@ class ProductConfigurator {
       task.dependsOn project.tasks.assemble, project.tasks.check
 
       if(explodedResources)
-        task.dependsOn "copyExplodedResources${productTaskSuffix}"
+        task.dependsOn "copyExplodedResources_${productTaskSuffix}"
 
       project.tasks.build.dependsOn task
     }
@@ -198,7 +226,9 @@ class ProductConfigurator {
   private boolean excludeFile(File file) {
     if(file.absolutePath == mainJar.absolutePath)
       return true
-    if(findFileInProducts(file))
+    if(productConfig?.find { it == file })
+      return true
+    if(providedConfig?.find { it == file })
       return true
     project.onejar.excludeProductFile.find {
       (it instanceof Closure ? it(file) : it) == file
@@ -210,12 +240,6 @@ class ProductConfigurator {
       return true
     project.onejar.excludeProductFile.find {
       (it instanceof Closure ? it(file) : it) == file
-    }
-  }
-
-  private boolean findFileInProducts(File file) {
-    project.configurations.find { config ->
-      config.name.startsWith('product_') && config.find { it == file }
     }
   }
 
@@ -273,12 +297,11 @@ java ''' + params
 
   private void generateVersionFile() {
     new File(versionFileName).text = """\
-product: ${project.name}
+product: ${productName}
 version: ${project.version}
-platform: ${platform}
-architecture: ${arch}
+platform: ${platform ?: 'any'}
+architecture: ${arch ?: 'any'}
 language: ${language ?: 'any'}
 """
   }
 }
-

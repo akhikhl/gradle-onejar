@@ -3,7 +3,7 @@ apply plugin: 'onejar'
 
 dependencies {
   compile 'org.apache.commons:commons-lang3:3.0'
-  compile 'commons-io:commons-io:2.4'
+  provided 'commons-io:commons-io:2.4'
 }
 
 configurations {

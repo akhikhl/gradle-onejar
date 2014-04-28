@@ -19,7 +19,7 @@ class OneJarPluginExtension {
   def mainJar = null
   def manifest = new Manifest()
   private boolean defaultProducts = true
-  List products = [[ name: "default" ]]
+  List products = [[:]]
   boolean archiveProducts = false
   List additionalProductFiles = []
   List beforeProductGeneration = []

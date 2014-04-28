@@ -29,6 +29,12 @@ class OneJarPlugin implements Plugin<Project> {
     project.task 'run', type: JavaExec
     project.task 'debug', type: JavaExec
 
+    if(!project.configurations.findByName('provided'))
+      project.configurations {
+        provided
+        compile.extendsFrom provided
+      }
+
     project.afterEvaluate {
 
       configureRunTask(project)
