@@ -1,7 +1,7 @@
 #gradle-onejar 
 [![Maintainer Status](http://stillmaintained.com/akhikhl/gradle-onejar.png)](http://stillmaintained.com/akhikhl/gradle-onejar) 
 [![Build Status](https://travis-ci.org/akhikhl/gradle-onejar.png?branch=master)](https://travis-ci.org/akhikhl/gradle-onejar) 
-[![Latest Version](http://img.shields.io/badge/latest_version-0.0.10-blue.svg)](https://github.com/akhikhl/gradle-onejar/tree/v0.0.10)
+[![Latest Version](http://img.shields.io/badge/latest_version-0.0.11-blue.svg)](https://github.com/akhikhl/gradle-onejar/tree/v0.0.11)
 [![License](http://img.shields.io/badge/license-MIT-ff69b4.svg)](#copyright-and-license)
 
 Gradle plugin for generating single jar for JVM-based application.
@@ -47,7 +47,7 @@ with name:
 "build/output/${project.name}-${project.version}/${project.name}.jar".
 
 Alternatively, you can download the script from https://raw.github.com/akhikhl/gradle-onejar/master/pluginScripts/gradle-onejar.plugin
-to the project folder and include it like this:
+to the project directory and include it like this:
 
 ```groovy
 apply from: 'gradle-onejar.plugin'
@@ -86,7 +86,7 @@ for more information.
 
 ###copyExplodedResources task
 
-The task copyExplodedResources copies additional files to the folder "${project.projectDir}/build/output",
+The task copyExplodedResources copies additional files to the directory "${project.projectDir}/build/output",
 so that these files get packed by task productArchive.
 
 ###run task
@@ -119,7 +119,7 @@ onejar {
   manifest {
     attributes attrName1: attrValue1 [, ...]
   }
-  product name: 'productName', platform: ..., arch: ..., language: ..., suffix: ..., launchers: [ ... ]
+  product name: 'productName', suffix: ..., platform: ..., arch: ..., language: ..., fileSuffix: ..., launchers: [ ... ], configBaseName: ..., explodedResource: [...], explodedResources: [...]
   archiveProducts true|false
   additionalProductFiles ... [, ...]
   excludeProductFile ... [, ...]
@@ -146,24 +146,38 @@ When omitted, gradle-onejar does not alter onejar manifest.
 
 **product** - optional, multiplicity 0..N, hashmap, accepting the following properties:
 
-- **name** - required, string, denotes the name of the product.
+- **name** - optional, string, denotes the name of the product. When omitted, project name is used.
+
+- **suffix** - optional, string, denotes the suffix to be added to the generated files/directorys.
 
 - **platform** - optional, string, denotes the target platform. Possible values are "windows" and "linux".
-  When omitted, the product is platform-neutral.
-  When equals to "windows", default launcher is ".bat" and target archive format is ".zip".
-  When equals to "linux", default launcher is ".sh" and target archive format is ".tag.gz".
+  - When omitted, the product is platform-neutral.
+  - When specified, the value is appended to the name of generated directory/file name.
+  - When equals to "windows", default launcher is ".bat" and target archive format is ".zip".
+  - When equals to "linux", default launcher is ".sh" and target archive format is ".tag.gz".
 
-- **arch** - optional, string, denotes the target architecture. Does not affect product generation (yet).
+- **arch** - optional, string, denotes the target architecture.
+  - When specified, the value is appended to the name of generated directory/file name.
 
-- **language** - optional, string, denotes the target language. When specified, the value is added
-  to JVM parameters in launcher scripts in the form -Duser.language=$language.
+- **language** - optional, string, denotes the target language. 
+  - When specified, the value is added to JVM parameters in launcher scripts in the form -Duser.language=$language.
+  - When specified, the value is appended to the name of generated directory/file name.
 
-- **suffix** - optional, string, denotes the suffix to be added to the generated files/folders.
+- **fileSuffix** - optional, string denotes the suffix to be appended to the name of generated directory/file name.
+  When omitted, default fileSuffix is appended: "-${suffix}-${platform}-${arch}-${language}".
 
 - **launchers** - optional, array, contains one or more strings "windows", "shell".
-  When omitted, launchers are defined by the selected platform.
-  When equals to "windows", the product is supplied with ".bat" launcher.
-  When equals to "shell", the product is supplied with ".sh" launcher.
+  - When omitted, launchers are defined by the selected platform.
+  - When equals to "windows", the product is supplied with ".bat" launcher.
+  - When equals to "shell", the product is supplied with ".sh" launcher.
+  
+- **configBaseName** - optional, string, denotes base for gradle configuration name.
+  The effective configuration name is calculated as "product_${configBaseName}_${product.suffix}_${platform}_${arch}_${language}"
+  - When omitted, product name is used as configBaseName instead.
+
+- **explodedResource(s)** - optional string or array of strings. When specified, should denote relative file paths
+  to the resources that are to be copied to product directory/archive without compression to jar.
+  The paths are relative to the project directory.
 
 **archiveProducts** - optional, boolean. When true, gradle-onejar packs the generated product to ".zip" or ".tar.gz" archive -
 depending on the specified platform. If platform is not specified, target format is ".tar.gz".

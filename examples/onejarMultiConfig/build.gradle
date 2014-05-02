@@ -22,8 +22,8 @@ ext {
 
 onejar {
   manifest { attributes 'Built-By': 'Some user' }
-  product 'v2_3'
-  product name: 'v2_4', launchers: [ 'shell', 'windows' ]
+  product suffix: 'v2_3'
+  product suffix: 'v2_4', launchers: [ 'shell', 'windows' ]
   jvmMinMemory '512m'
   jvmMaxMemory '1024m'
 }

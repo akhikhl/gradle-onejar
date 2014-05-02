@@ -10,22 +10,26 @@ package org.akhikhl.gradle.onejar
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.bundling.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class ProductConfigurator {
+
+  private static final Logger log = LoggerFactory.getLogger(ProductConfigurator)
 
   private final Project project
   private final Map product
   private final String platform
   private final String arch
   private final String language
-  private final String productName
+  private final String productBaseFileName
+  private final String productQualifiedFileName
+  private final String outputBaseDir
+  private final String outputDir
+  private final String destFile
   private final String productTaskSuffix
   private final Configuration productConfig
   private final Configuration providedConfig
-  private final String outputBaseDir
-  private final String outputDir
-  private final String baseName
-  private final String destFile
   private final File mainJar
   private final List launchers
   private final String versionFileName
@@ -37,39 +41,31 @@ class ProductConfigurator {
     platform = product.platform
     arch = product.arch
     language = product.language
-    String productConfigName
-    if(product.name) {
-      productName = product.name
-      productConfigName = 'product_' + product.name
-    }
-    else {
-      String productName = project.name + '-' + project.version
-      if(product.suffix)
-        productName += '-' + product.suffix
-      else {
-        if(platform)
-          productName += '-' + platform
-        if(arch)
-          productName += '-' + arch
-        if(language)
-          productName += '-' + language
-      }
-      this.productName = productName
-      productConfigName = 'product'
-      if(platform)
-        productConfigName += '_' + platform
-      if(arch)
-        productConfigName += '_' + arch
-      if(language)
-        productConfigName += '_' + language
-    }
-    productConfig = project.configurations.findByName(productConfigName)
-    providedConfig = project.configurations.findByName('provided')
-    this.productTaskSuffix = productConfigName
+
+    productBaseFileName = product.name ?: project.name
+
+    String productFileSuffix
+    if(product.fileSuffix)
+      productFileSuffix = product.fileSuffix
+    else
+      productFileSuffix = [ product.suffix, platform, arch, language ].findResults { it ?: null }.join('-')
+
+    productQualifiedFileName = [productBaseFileName, project.version, productFileSuffix].findResults { it ?: null }.join('-')
+
     outputBaseDir = "${project.buildDir}/output"
-    outputDir = "${outputBaseDir}/${productName}"
-    baseName = "${project.name}"
-    destFile = "${outputDir}/${baseName}.jar"
+    outputDir = "${outputBaseDir}/${productQualifiedFileName}"
+    log.debug 'outputDir={}', outputDir
+
+    destFile = "${outputDir}/${productBaseFileName}.jar"
+
+    productTaskSuffix = [ product.name, product.suffix, platform, arch, language ].findResults { it ?: null }.join('_')
+
+    String productConfigName = [ 'product', product.configBaseName ?: product.name ?: '', product.suffix, platform, arch, language ].findResults { it ?: null }.join('_')
+    log.debug 'product config: {}', productConfigName
+    productConfig = project.configurations.findByName(productConfigName)
+
+    providedConfig = project.configurations.findByName('provided')
+
     mainJar = ProjectUtils.getMainJar(project)
     if(product.launchers)
       launchers = product.launchers
@@ -124,15 +120,17 @@ class ProductConfigurator {
     def archiveType = launchers.contains('windows') ? Zip : Tar
 
     project.task("archive_${productTaskSuffix}", type: archiveType) {
-      from new File(outputDir)
-      into productName
+
+      archiveName = productQualifiedFileName + (archiveType == Tar ? '.tar.gz' : '.zip')
       destinationDir = new File(outputBaseDir)
-      if(archiveType == Tar) {
-        extension = 'tar.gz'
+      if(archiveType == Tar)
         compression = Compression.GZIP
-      }
+
+      from new File(outputDir), { into productBaseFileName }
+
       doLast {
-        ant.checksum file: it.archivePath
+        project.logger.warn 'Created archive: {}', archivePath
+        ant.checksum file: archivePath
       }
       dependsOn "build_${productTaskSuffix}"
       project.tasks.build.dependsOn it
@@ -152,10 +150,10 @@ class ProductConfigurator {
       outputs.file destFile
 
       if(launchers.contains('shell'))
-        outputs.file(new File("${outputDir}/${baseName}.sh"))
+        outputs.file(new File("${outputDir}/${productBaseFileName}.sh"))
 
       if(launchers.contains('windows'))
-        outputs.file(new File("${outputDir}/${baseName}.bat"))
+        outputs.file(new File("${outputDir}/${productBaseFileName}.bat"))
 
       outputs.file versionFileName
 
@@ -205,7 +203,7 @@ class ProductConfigurator {
             obj(product, outputDir)
         }
 
-        project.logger.info 'Created one-jar: {}', destFile
+        project.logger.warn 'Created one-jar: {}', destFile
       } // doLast
 
       task.dependsOn project.tasks.assemble, project.tasks.check
@@ -263,12 +261,12 @@ class ProductConfigurator {
 
       def params = []
       addCommonParams(params)
-      params.add('-jar ${DIR}/' + baseName + '.jar')
+      params.add('-jar ${DIR}/' + productBaseFileName + '.jar')
       params.addAll(project.onejar.launchParameters)
       params.add('"$@"')
       params = params.join(' ')
 
-      def launchScriptFile = new File("${outputDir}/${baseName}.sh")
+      def launchScriptFile = new File("${outputDir}/${productBaseFileName}.sh")
       launchScriptFile.text = '''#!/bin/bash
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -285,19 +283,19 @@ java ''' + params
 
       def params = []
       addCommonParams(params)
-      params.add('-jar %~dp0\\' + baseName + '.jar')
+      params.add('-jar %~dp0\\' + productBaseFileName + '.jar')
       params.addAll(project.onejar.launchParameters)
       params.add('%*')
       params = params.join(' ')
 
-      def launchScriptFile = new File("${outputDir}/${baseName}.bat")
+      def launchScriptFile = new File("${outputDir}/${productBaseFileName}.bat")
       launchScriptFile.text = '@java ' + params
     }
   }
 
   private void generateVersionFile() {
     new File(versionFileName).text = """\
-product: ${productName}
+product: ${productBaseFileName}
 version: ${project.version}
 platform: ${platform ?: 'any'}
 architecture: ${arch ?: 'any'}
