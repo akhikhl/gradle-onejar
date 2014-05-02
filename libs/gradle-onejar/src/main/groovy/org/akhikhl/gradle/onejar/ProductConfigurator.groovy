@@ -103,7 +103,7 @@ class ProductConfigurator {
 
       doLast {
         for(def explodedResource in explodedResources) {
-          logger.warn 'Copying exploded resource from {} into {}', explodedResource, "$outputDir/$explodedResource"
+          logger.debug 'Copying exploded resource from {} into {}', explodedResource, "$outputDir/$explodedResource"
           project.copy {
             from explodedResource
             into "$outputDir/$explodedResource"
@@ -129,7 +129,7 @@ class ProductConfigurator {
       from new File(outputDir), { into productBaseFileName }
 
       doLast {
-        project.logger.warn 'Created archive: {}', archivePath
+        project.logger.debug 'Created archive: {}', archivePath
         ant.checksum file: archivePath
       }
       dependsOn "build_${productTaskSuffix}"
@@ -203,7 +203,7 @@ class ProductConfigurator {
             obj(product, outputDir)
         }
 
-        project.logger.warn 'Created one-jar: {}', destFile
+        project.logger.debug 'Created one-jar: {}', destFile
       } // doLast
 
       task.dependsOn project.tasks.assemble, project.tasks.check
