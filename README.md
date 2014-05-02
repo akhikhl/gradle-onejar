@@ -220,11 +220,11 @@ onejar {
 then gradle-onejar will generate two products for you:
 
 ```shell
-onejarMultiConfig-0.0.7-v2_3
+onejarMultiConfig-0.0.11-v2_3
   onejarMultiConfig.jar
   onejarMultiConfig.sh
   VERSION
-onejarMultiConfig-0.0.7-v2_4
+onejarMultiConfig-0.0.11-v2_4
   onejarMultiConfig.jar
   onejarMultiConfig.sh
   VERSION
@@ -252,8 +252,8 @@ dependencies {
 
 onejar {
   // each product automatically recognizes linked configuration and dependencies
-  product name: 'v2_3'
-  product name: 'v2_4'
+  product suffix: 'v2_3'
+  product suffix: 'v2_4'
 }
 ```
 
