@@ -6,7 +6,7 @@ buildscript {
   }
   
   dependencies {
-    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.10'
+    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.11'
   }
 }
 
