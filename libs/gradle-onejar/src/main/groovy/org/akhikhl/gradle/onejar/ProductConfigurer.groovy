@@ -190,21 +190,31 @@ class ProductConfigurer {
                 addedFiles.add(file)
               }
             }
-            project.onejar.additionalProductFiles.each { obj ->
-              if(obj instanceof Closure)
-                obj = obj(product)
-              obj.each { file ->
+            def processAdditionalProductFiles = { files ->
+              if(files != null) {
+                if(files instanceof Closure)
+                  files = files(product)
+                else if(files instanceof Collection)
+                  files = files.flatten()
+                else
+                  files = [ files ]
+              }
+              files?.each { file ->
+                if(file instanceof Closure)
+                  file = file(product)
                 if(!excludeFile(file, mainJar) && !addedFiles.contains(file)) {
                   fileset(file: file)
                   addedFiles.add(file)
-                }
+                }              
               }
             }
+            processAdditionalProductFiles(project.onejar.additionalProductFiles)
+            processAdditionalProductFiles(product.additionalProductFiles)
           }
         }
 
         generateLauncherFiles()
-        generateVersionFile(product)
+        generateVersionFile()
 
         project.onejar.onProductGeneration.each { obj ->
           if(obj instanceof Closure)
@@ -302,7 +312,7 @@ java ''' + params
     }
   }
 
-  private void generateVersionFile(Map product) {
+  private void generateVersionFile() {
     Properties props = new Properties()
     props.setProperty('product', productBaseFileName)
     props.setProperty('version', project.version)
