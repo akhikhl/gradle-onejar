@@ -36,8 +36,8 @@ class OneJarConfigurer {
 
     project.extensions.create('onejar', OneJarPluginExtension)
 
-    project.task runTaskName, type: JavaExec
-    project.task debugTaskName, type: JavaExec
+    project.task(runTaskName, type: JavaExec, group: 'onejar', description: 'Runs the application with product configuration')
+    project.task(debugTaskName, type: JavaExec, group: 'onejar', description: 'Runs the application with product configuration in debug mode')
 
     if(!project.configurations.findByName('provided'))
       project.configurations {
@@ -80,7 +80,7 @@ class OneJarConfigurer {
 
   private void configureJarTask() {
     String mainClass = ProjectUtils.getMainClass(project)
-    if(project.tasks.jar.manifest.attributes.'Main-Class' != mainClass)
+    if(mainClass && project.tasks.jar.manifest.attributes.'Main-Class' != mainClass)
       project.jar {
         manifest { attributes 'Main-Class': mainClass }
       }

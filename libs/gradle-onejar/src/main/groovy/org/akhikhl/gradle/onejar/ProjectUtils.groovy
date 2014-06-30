@@ -21,8 +21,10 @@ class ProjectUtils {
 
   public static File getMainJar(Project project) {
     def mainJar = project.onejar.mainJar
-    if(mainJar == null)
-      mainJar = project.tasks.jar.archivePath
+    if(mainJar == null) {
+      def archiveTask = project.tasks.findByName('war') ?: project.tasks.findByName('jar')
+      mainJar = archiveTask.archivePath
+    }
     else if(mainJar instanceof Closure)
       mainJar = mainJar()
     if(!(mainJar instanceof File))

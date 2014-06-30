@@ -31,7 +31,6 @@ class ProductConfigurer {
   private final String productTaskSuffix
   private final Configuration productConfig
   private final Configuration providedConfig
-  private final File mainJar
   private final List launchers
   private final String versionFileName
   private final List explodedResources = []
@@ -70,7 +69,6 @@ class ProductConfigurer {
 
     providedConfig = project.configurations.findByName('provided')
 
-    mainJar = ProjectUtils.getMainJar(project)
     if(product.launchers)
       launchers = product.launchers
     else if(product.launcher)
@@ -91,7 +89,9 @@ class ProductConfigurer {
   private void configureCopyExplodedResourcesTask() {
     if(!explodedResources)
       return
-    project.task("copyExplodedResources${productTaskSuffix}") { task ->
+    project.task("copyExplodedResources${productTaskSuffix}", group: 'onejar') { task ->
+
+      description = 'Copies exploded resources to product directory'
 
       for(def explodedResource in explodedResources) {
         def f = project.file(explodedResource)
@@ -123,7 +123,9 @@ class ProductConfigurer {
 
     def archiveType = launchers.contains('windows') ? Zip : Tar
 
-    project.task("archiveProduct${productTaskSuffix}", type: archiveType) {
+    project.task("archiveProduct${productTaskSuffix}", type: archiveType, group: 'onejar') {
+
+      description = "Compresses the product to ${archiveType == Tar ? 'tar.gz' : 'zip'} file"
 
       archiveName = productQualifiedFileName + (archiveType == Tar ? '.tar.gz' : '.zip')
       destinationDir = new File(outputBaseDir)
@@ -143,10 +145,12 @@ class ProductConfigurer {
 
   private void configureProductBuildTask() {
 
-    project.task("buildProduct${productTaskSuffix}") { task ->
+    project.task("buildProduct${productTaskSuffix}", group: 'onejar') { task ->
+
+      description = 'Builds the product'
 
       inputs.dir "${project.buildDir}/libs"
-      inputs.files project.configurations.runtime.files
+      inputs.files { getRuntimeConfiguration().files }
 
       if(productConfig)
         inputs.files productConfig.files
@@ -163,6 +167,7 @@ class ProductConfigurer {
 
       doLast {
         Set addedFiles = new HashSet()
+        def mainJar = ProjectUtils.getMainJar(project)
 
         ant.onejar(destFile: destFile) {
           main jar: mainJar
@@ -174,14 +179,15 @@ class ProductConfigurer {
               attribute name: 'Built-By', value: System.getProperty('user.name')
           }
           lib {
-            project.configurations.runtime.each { file ->
-              if(!excludeFile(file) && !addedFiles.contains(file)) {
-                fileset(file: file)
-                addedFiles.add(file)
+            if(!options.suppressRuntimeConfiguration)
+              getRuntimeConfiguration().each { file ->
+                if(!excludeFile(file, mainJar) && !addedFiles.contains(file)) {
+                  fileset(file: file)
+                  addedFiles.add(file)
+                }
               }
-            }
             productConfig?.each { file ->
-              if(!excludeProductFile(file) && !addedFiles.contains(file)) {
+              if(!excludeProductFile(file, mainJar) && !addedFiles.contains(file)) {
                 fileset(file: file)
                 addedFiles.add(file)
               }
@@ -190,7 +196,7 @@ class ProductConfigurer {
               if(obj instanceof Closure)
                 obj = obj(product)
               obj.each { file ->
-                if(!excludeFile(file) && !addedFiles.contains(file)) {
+                if(!excludeFile(file, mainJar) && !addedFiles.contains(file)) {
                   fileset(file: file)
                   addedFiles.add(file)
                 }
@@ -226,7 +232,7 @@ class ProductConfigurer {
     configureProductArchiveTask()
   }
 
-  private boolean excludeFile(File file) {
+  private boolean excludeFile(File file, mainJar) {
     if(file.absolutePath == mainJar.absolutePath)
       return true
     if(productConfig?.find { it == file })
@@ -238,7 +244,7 @@ class ProductConfigurer {
     }
   }
 
-  private boolean excludeProductFile(File file) {
+  private boolean excludeProductFile(File file, mainJar) {
     if(file.absolutePath == mainJar.absolutePath)
       return true
     project.onejar.excludeProductFile.find {
@@ -306,5 +312,9 @@ platform: ${platform ?: 'any'}
 architecture: ${arch ?: 'any'}
 language: ${language ?: 'any'}
 """
+  }
+
+  protected getRuntimeConfiguration() {
+    project.configurations.getByName(options.runtimeConfiguration ?: 'runtime')
   }
 }
