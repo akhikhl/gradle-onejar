@@ -6,26 +6,26 @@ buildscript {
   }
   
   dependencies {
-    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.11'
+    classpath 'org.akhikhl.gradle-onejar:gradle-onejar:0.0.12'
   }
 }
 
 apply plugin: 'base' // add "clean" task to the root project.
 
+group = 'org.akhikhl.gradle-onejar.examples'
+version = '0.0.12'
+
 ext {
-  group = 'org.akhikhl.gradle-onejar'
-  version = '0.0.11'
-  groovy_version = '2.2.2'
-  logback_version = '1.1.1'
+  groovy_version = '2.3.3'
+  logback_version = '1.1.2'
 }
 
 subprojects {
   repositories {
     mavenLocal()
     jcenter()
-    mavenCentral()
   }
 
-  group = rootProject.ext.group
-  version = rootProject.ext.version
+  group = rootProject.group
+  version = rootProject.version
 }

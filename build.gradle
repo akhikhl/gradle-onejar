@@ -1,20 +1,18 @@
-buildscript {
-  repositories {
-    mavenLocal()
-    jcenter()
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
-  }
+ext {
+  project_id = 'gradle-onejar'
+  project_description = 'Gradle plugin for onejar generation'
+  developer_id = 'akhikhl'
+  developer_name = 'Andrey Hihlovskiy'
+  project_website = "https://github.com/${developer_id}/${project_id}"
+  project_scm = "scm:git@github.com:${developer_id}/${project_id}.git"
+  license = 'MIT'
+  license_url = "https://raw.github.com/${developer_id}/${project_id}/master/license.txt"
+  labels = ['gradle', 'plugin', 'onejar']
 }
 
-ext {
-  group = 'org.akhikhl.gradle-onejar'
-  version = '0.0.11'
-  groovy_version = '2.2.2'
-  spock_version = '0.7-groovy-2.0'
-}
+group = 'org.akhikhl.gradle-onejar'
+version = '0.0.12'
+description = ext.project_description
 
 apply plugin: 'base' // add "clean" task to the root project.
 
@@ -25,145 +23,8 @@ task('buildExamples', type: GradleBuild) { task ->
   tasks = [ 'build' ]
 }
 
-build.finalizedBy buildExamples
-
 task('cleanExamples', type: GradleBuild) { task ->
   dir = file('examples')
   tasks = [ 'clean' ]
 }
 
-clean.dependsOn cleanExamples
-
-subprojects {
-
-  if(project.parent.name == 'libs') {
-
-    apply plugin: 'maven'
-    apply plugin: 'groovy'
-    apply plugin: 'signing'
-    apply plugin: 'maven-publish'
-    apply plugin: 'bintray'
-
-    repositories {
-      mavenLocal()
-      jcenter()
-      mavenCentral()
-    }
-    
-    group = rootProject.ext.group
-    version = rootProject.ext.version
-
-    dependencies {
-      compile "org.codehaus.groovy:groovy-all:${rootProject.ext.groovy_version}"
-      testCompile "org.spockframework:spock-core:${rootProject.ext.spock_version}"
-    }
-
-    // lib projects should be always installed into "$HOME/.m2"
-    project.tasks.build.finalizedBy project.tasks.install
-    rootProject.tasks.buildExamples.dependsOn project.tasks.install
-
-    task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates sources jar') {
-      classifier = 'sources'
-      from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar, description: 'Creates javadoc jar') {
-      dependsOn javadoc
-      classifier = 'javadoc'
-      from javadoc.destinationDir
-      if(tasks.findByName('groovydoc')) {
-        dependsOn groovydoc
-        from groovydoc.destinationDir
-      }
-    }
-    
-    artifacts {
-      archives sourcesJar, javadocJar
-    }
-
-    if(project.hasProperty('publishToSonatype')) {
-      
-      assert project.hasProperty('signing.keyId')
-      assert project.hasProperty('signing.password')
-      assert project.hasProperty('signing.secretKeyRingFile')
-      assert project.hasProperty('sonatypeUsername')
-      assert project.hasProperty('sonatypePassword')
-
-      signing {
-        sign configurations.archives
-      }
-
-      uploadArchives {
-        repositories {
-          mavenDeployer {
-            beforeDeployment { deployment -> signing.signPom(deployment) }
-
-            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
-              authentication(userName: project.sonatypeUsername, password: project.sonatypePassword)
-            }
-
-            pom.project {
-              name project.name
-              packaging 'jar'
-              description 'Gradle plugin for generating single jar for jvm-based application'
-              url 'https://github.com/akhikhl/gradle-onejar'
-
-              scm {
-                url 'scm:https://github.com/akhikhl/gradle-onejar.git'
-                connection 'scm:https://github.com/akhikhl/gradle-onejar.git'
-                developerConnection 'scm:git@github.com:akhikhl/gradle-onejar.git'
-              }
-
-              licenses {
-                license {
-                  name 'The MIT License'
-                  url 'http://opensource.org/licenses/mit-license.php/'
-                  distribution 'repo'
-                }
-              }
-
-              developers {
-                developer {
-                  id 'akhikhl'
-                  name 'Andrey Hihlovskiy'
-                }
-              }
-            }
-          }
-        }
-      } // uploadArchives
-    } // publishToSonatype
-
-    // used by bintray
-    publishing {
-      publications {
-        mavenAll(MavenPublication) {
-          if (plugins.hasPlugin('java')) {
-            from components.java
-          }
-          artifact sourcesJar {
-            classifier "sources"
-          }
-          artifact javadocJar {
-            classifier "javadoc"
-          }
-        }
-      }
-    } // publishing
-        
-    bintray {
-      user = project.hasProperty('bintrayUser') ? project.bintrayUser : ''
-      key = project.hasProperty('bintrayKey') ? project.bintrayKey : ''
-      publications = ['mavenAll'] // When uploading Maven-based publication files
-      pkg {
-        repo = 'maven'
-        name = 'gradle-onejar'
-        desc = 'Gradle plugin for generating single jar for jvm-based application'
-        licenses = ['MIT']
-        labels = ['gradle-onejar', 'gradle', 'onejar', 'plugin']
-      }
-      dryRun = false
-    }
-    
-  } // if libs
-} // subprojects

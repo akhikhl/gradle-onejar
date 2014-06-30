@@ -1,0 +1,12 @@
+apply from: 'sign.gradle'
+
+ext {  
+  if(gradle.gradleVersion.startsWith('1.')) {
+    groovy_version = '1.8.6'
+    spock_version = '0.7-groovy-1.8'
+  } else {
+    groovy_version = '2.3.3'
+    spock_version = '0.7-groovy-2.0'
+  }
+}
+

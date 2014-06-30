@@ -12,6 +12,8 @@ import org.gradle.api.Project
 class ProjectUtils {
 
   public static String getMainClass(Project project) {
+    if(project.onejar.mainClass)
+      return project.onejar.mainClass
     if(project.ext.has('mainClass'))
       return project.ext.mainClass
     return project.tasks.jar.manifest.attributes.'Main-Class'

@@ -13,10 +13,11 @@ import org.gradle.api.tasks.bundling.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class ProductConfigurator {
+class ProductConfigurer {
 
-  private static final Logger log = LoggerFactory.getLogger(ProductConfigurator)
+  private static final Logger log = LoggerFactory.getLogger(ProductConfigurer)
 
+  private final Map options
   private final Project project
   private final Map product
   private final String platform
@@ -35,7 +36,8 @@ class ProductConfigurator {
   private final String versionFileName
   private final List explodedResources = []
 
-  ProductConfigurator(Project project, Map product) {
+  ProductConfigurer(Map options, Project project, Map product) {
+    this.options = options
     this.project = project
     this.product = product
     platform = product.platform
@@ -59,6 +61,8 @@ class ProductConfigurator {
     destFile = "${outputDir}/${productBaseFileName}.jar"
 
     productTaskSuffix = [ product.name, product.suffix, platform, arch, language ].findResults { it ?: null }.join('_')
+    if(productTaskSuffix)
+      productTaskSuffix = '_' + productTaskSuffix
 
     String productConfigName = [ 'product', product.configBaseName ?: product.name ?: '', product.suffix, platform, arch, language ].findResults { it ?: null }.join('_')
     log.debug 'product config: {}', productConfigName
@@ -87,7 +91,7 @@ class ProductConfigurator {
   private void configureCopyExplodedResourcesTask() {
     if(!explodedResources)
       return
-    project.task("copyExplodedResources_${productTaskSuffix}") { task ->
+    project.task("copyExplodedResources${productTaskSuffix}") { task ->
 
       for(def explodedResource in explodedResources) {
         def f = project.file(explodedResource)
@@ -119,7 +123,7 @@ class ProductConfigurator {
 
     def archiveType = launchers.contains('windows') ? Zip : Tar
 
-    project.task("archive_${productTaskSuffix}", type: archiveType) {
+    project.task("archiveProduct${productTaskSuffix}", type: archiveType) {
 
       archiveName = productQualifiedFileName + (archiveType == Tar ? '.tar.gz' : '.zip')
       destinationDir = new File(outputBaseDir)
@@ -132,14 +136,14 @@ class ProductConfigurator {
         project.logger.debug 'Created archive: {}', archivePath
         ant.checksum file: archivePath
       }
-      dependsOn "build_${productTaskSuffix}"
+      dependsOn "buildProduct${productTaskSuffix}"
       project.tasks.build.dependsOn it
     }
   }
 
   private void configureProductBuildTask() {
 
-    project.task("build_${productTaskSuffix}") { task ->
+    project.task("buildProduct${productTaskSuffix}") { task ->
 
       inputs.dir "${project.buildDir}/libs"
       inputs.files project.configurations.runtime.files
@@ -209,9 +213,10 @@ class ProductConfigurator {
       task.dependsOn project.tasks.assemble, project.tasks.check
 
       if(explodedResources)
-        task.dependsOn "copyExplodedResources_${productTaskSuffix}"
+        task.dependsOn "copyExplodedResources${productTaskSuffix}"
 
-      project.tasks.build.dependsOn task
+      if(!options.suppressBuildTaskDependency)
+        project.tasks.build.dependsOn task
     }
   }
 

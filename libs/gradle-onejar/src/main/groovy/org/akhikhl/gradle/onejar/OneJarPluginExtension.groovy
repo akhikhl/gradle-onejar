@@ -16,7 +16,8 @@ class OneJarPluginExtension {
     }
   }
 
-  def mainJar = null
+  def mainJar
+  String mainClass
   def manifest = new Manifest()
   private boolean defaultProducts = true
   List products = [[:]]

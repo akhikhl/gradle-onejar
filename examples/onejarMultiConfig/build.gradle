@@ -26,4 +26,5 @@ onejar {
   product suffix: 'v2_4', launchers: [ 'shell', 'windows' ]
   jvmMinMemory '512m'
   jvmMaxMemory '1024m'
+  archiveProducts = true
 }
