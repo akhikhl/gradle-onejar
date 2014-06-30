@@ -23,54 +23,68 @@ class OneJarPluginExtension {
   List products = [[:]]
   boolean archiveProducts = false
   List additionalProductFiles = []
+  List afterEvaluate = []
   List beforeProductGeneration = []
   List excludeProductFile = []
   List launchParameters = []
   List onProductGeneration = []
   String jvmMinMemory
   String jvmMaxMemory
+  Map productInfo = [:]
 
-  def additionalProductFiles(newValue) {
+  void additionalProductFiles(newValue) {
     if(newValue instanceof Collection)
       additionalProductFiles.addAll newValue
     else
       additionalProductFiles.add newValue
   }
 
-  def beforeProductGeneration(newValue) {
+  void afterEvaluate(newValue) {
+    afterEvaluate.add newValue
+  }
+
+  void beforeProductGeneration(newValue) {
     beforeProductGeneration.add newValue
   }
 
-  def excludeProductFile(Closure newValue) {
+  void excludeProductFile(Closure newValue) {
     excludeProductFile.add newValue
   }
 
-  def launchParameter(String newValue) {
+  void launchParameter(String newValue) {
     launchParameters.add newValue
   }
 
-  def mainJar(newValue) {
+  void mainJar(newValue) {
     mainJar = newValue
   }
 
-  def manifest(Closure closure) {
+  void manifest(Closure closure) {
     closure.delegate = manifest
     closure()
   }
 
-  def onProductGeneration(newValue) {
+  void onProductGeneration(newValue) {
     onProductGeneration.add newValue
   }
 
-  def product(String productName) {
+  void product(String productName) {
     product( [ name: productName ] )
   }
 
-  def product(Map productSpec) {
+  void product(Map productSpec) {
     if(defaultProducts) {
       products = []
       defaultProducts = false
     }
     products.add productSpec
+  }
+  
+  void productInfo(Map m) {
+    productInfo << m
+  }
+  
+  void productInfo(String key, String value) {
+    productInfo[key] = value
   }
 }

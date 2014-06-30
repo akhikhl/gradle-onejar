@@ -77,9 +77,7 @@ class ProductConfigurer {
       launchers = ['windows']
     else
       launchers = ['shell']
-    versionFileName = "${outputDir}/VERSION"
-    if(platform == 'windows' || launchers.contains('windows'))
-      versionFileName += '.txt'
+    versionFileName = "${outputDir}/VERSION.txt"
     if(product.explodedResource)
       explodedResources.add product.explodedResource
     if(product.explodedResources)
@@ -206,7 +204,7 @@ class ProductConfigurer {
         }
 
         generateLauncherFiles()
-        generateVersionFile()
+        generateVersionFile(product)
 
         project.onejar.onProductGeneration.each { obj ->
           if(obj instanceof Closure)
@@ -304,14 +302,32 @@ java ''' + params
     }
   }
 
-  private void generateVersionFile() {
-    new File(versionFileName).text = """\
-product: ${productBaseFileName}
-version: ${project.version}
-platform: ${platform ?: 'any'}
-architecture: ${arch ?: 'any'}
-language: ${language ?: 'any'}
-"""
+  private void generateVersionFile(Map product) {
+    Properties props = new Properties()
+    props.setProperty('product', productBaseFileName)
+    props.setProperty('version', project.version)
+    if(platform)
+      props.setProperty('platform', platform)
+    if(arch)
+      props.setProperty('architecture', arch)
+    if(language)
+      props.setProperty('language', language)
+      
+    project.onejar.productInfo.each { key, value ->
+      if(value instanceof Closure)
+        value = value()
+      props.setProperty(key, value)
+    }
+    
+    product.productInfo?.each { key, value ->
+      if(value instanceof Closure)
+        value = value()
+      props.setProperty(key, value)
+    }
+    
+    new File(versionFileName).withOutputStream {
+      props.store(it, null)
+    }
   }
 
   protected getRuntimeConfiguration() {

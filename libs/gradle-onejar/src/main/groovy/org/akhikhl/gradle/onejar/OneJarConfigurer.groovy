@@ -60,6 +60,11 @@ class OneJarConfigurer {
       for(def product in project.onejar.products)
         new ProductConfigurer(options, project, product).configureProduct()
 
+      project.onejar.afterEvaluate.each { obj ->
+        if(obj instanceof Closure)
+          obj()
+      }
+
     } // project.afterEvaluate
   }
 
